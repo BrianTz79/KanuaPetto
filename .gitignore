@@ -1,0 +1,16 @@
+# Godot-specific files
+.godot/
+/android/
+.mono/
+*.import
+export_presets.cfg
+
+# C# compilation
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / VS Code
+.vscode/
+.vs/
+*.sln
+*.csproj

@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3 uid="uid://kdkfoqonifeg"]
+
+[ext_resource type="Texture2D" uid="uid://bsmwvor2xx0pi" path="res://sprites/Fondos/FondoPaisajeMain.jpg" id="1_1bvp3"]
+[ext_resource type="PackedScene" uid="uid://cxg72ltmds1t7" path="res://kanua_pet.tscn" id="1_h2yge"]
+[ext_resource type="PackedScene" uid="uid://cws3ramwifl1y" path="res://pet_ui.tscn" id="2_1bvp3"]
+
+[node name="Main" type="Node2D"]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 1.0
+offset_right = 1153.0
+offset_bottom = 648.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+texture = ExtResource("1_1bvp3")
+expand_mode = 3
+
+[node name="KanuaPet" parent="." instance=ExtResource("1_h2yge")]
+HungerDecreaseRate = 10.0
+Hunger = 90
+Happiness = 90
+Coins = 50
+
+[node name="PetUI" parent="." node_paths=PackedStringArray("_coinsLabel") instance=ExtResource("2_1bvp3")]
+_coinsLabel = NodePath("MainContainer/StatsContainer/VBoxContainer/CoinsLabel")
+
+[node name="MainContainer" parent="PetUI" index="0"]
+offset_left = 1.0
+offset_right = 1.0
+
+[connection signal="StatsChanged" from="KanuaPet" to="PetUI" method="OnPetStatsChanged"]
+[connection signal="pressed" from="PetUI/MainContainer/Button" to="KanuaPet" method="Feed"]
+[connection signal="pressed" from="PetUI/MainContainer/Button2" to="KanuaPet" method="_on_play_button_pressed"]
+
+[editable path="PetUI"]

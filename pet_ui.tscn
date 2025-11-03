@@ -1,0 +1,85 @@
+[gd_scene load_steps=2 format=3 uid="uid://cws3ramwifl1y"]
+
+[ext_resource type="Script" uid="uid://dgc8k2p2k7hr7" path="res://PetUI.cs" id="1_x1jjm"]
+
+[node name="PetUI" type="CanvasLayer" node_paths=PackedStringArray("_hungerBar", "_happinessBar", "_healthBar")]
+script = ExtResource("1_x1jjm")
+_hungerBar = NodePath("MainContainer/StatsContainer/HungerContainer/HungerBar")
+_happinessBar = NodePath("MainContainer/StatsContainer/HappinessContainer/HappinessBar")
+_healthBar = NodePath("MainContainer/StatsContainer/HealthContainer/HealthBar")
+
+[node name="MainContainer" type="VBoxContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StatsContainer" type="HBoxContainer" parent="MainContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 100
+alignment = 1
+
+[node name="HungerContainer" type="VBoxContainer" parent="MainContainer/StatsContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="Hambre" type="Label" parent="MainContainer/StatsContainer/HungerContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Hambre"
+
+[node name="HungerBar" type="ProgressBar" parent="MainContainer/StatsContainer/HungerContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="HappinessContainer" type="VBoxContainer" parent="MainContainer/StatsContainer"]
+layout_mode = 2
+
+[node name="Felicidad" type="Label" parent="MainContainer/StatsContainer/HappinessContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Felicidad"
+
+[node name="HappinessBar" type="ProgressBar" parent="MainContainer/StatsContainer/HappinessContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="HealthContainer" type="VBoxContainer" parent="MainContainer/StatsContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MainContainer/StatsContainer/HealthContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_font_sizes/font_size = 32
+text = "Salud"
+
+[node name="HealthBar" type="ProgressBar" parent="MainContainer/StatsContainer/HealthContainer"]
+custom_minimum_size = Vector2(250, 0)
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer"]
+layout_mode = 2
+size_flags_vertical = 0
+
+[node name="Label" type="Label" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+text = "Monedas"
+
+[node name="CoinsLabel" type="Label" parent="MainContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="MainContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 10
+text = "Alimentar"
+
+[node name="Button2" type="Button" parent="MainContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 8
+text = "Jugar"
