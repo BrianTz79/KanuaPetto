@@ -1,8 +1,9 @@
-[gd_scene load_steps=24 format=3 uid="uid://cxg72ltmds1t7"]
+[gd_scene load_steps=25 format=3 uid="uid://cxg72ltmds1t7"]
 
 [ext_resource type="Script" uid="uid://cyn3gvuk4bgop" path="res://KanuaPet.cs" id="1_elfru"]
 [ext_resource type="Texture2D" uid="uid://btesu02ss4jb" path="res://sprites/amelia/spritesheet-3.png" id="2_elfru"]
 [ext_resource type="Texture2D" uid="uid://mje3qmlgqnsi" path="res://sprites/amelia/ComerPastelSheet.png" id="2_u4aei"]
+[ext_resource type="PackedScene" uid="uid://wocb2r53nwdc" path="res://SpeechBubble.tscn" id="4_imol1"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_f6i17"]
 atlas = ExtResource("2_u4aei")
@@ -186,5 +187,11 @@ scale = Vector2(0.4, 0.4)
 sprite_frames = SubResource("SpriteFrames_f6i17")
 animation = &"eat"
 autoplay = "idle"
+
+[node name="SpeechBubble" parent="." instance=ExtResource("4_imol1")]
+offset_left = 768.0
+offset_top = 160.0
+offset_right = 960.0
+offset_bottom = 256.0
 
 [connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]

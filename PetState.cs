@@ -57,6 +57,40 @@ public partial class PetState : Node
         }
     }
 
+    private int _affinity = 0;
+    public int Affinity
+    {
+        get => _affinity;
+        set
+        {
+            _affinity = Mathf.Clamp(value, -100, 100);
+            EmitStatsChanged(); 
+        }
+    }
+
+    public enum PersonalityType { Grumpy, Normal, Happy }
+
+    public PersonalityType CurrentPersonality
+    {
+        get
+        {
+            if (_affinity < -30) return PersonalityType.Grumpy;
+            if (_affinity > 30) return PersonalityType.Happy;
+            return PersonalityType.Normal;
+        }
+    }
+    
+    // Función para modificar afinidad (usar esta en lugar de set directo)
+    public void ChangeAffinity(int amount)
+    {
+        Affinity += amount;
+        GD.Print($"Afinidad cambiada: {amount}. Total: {Affinity} ({CurrentPersonality})");
+
+        GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
+    }
+
+
+
     // Tasas de disminución (como antes)
     public float HungerDecreaseRate { get; set; } = 10.0f;
     public float HappinessDecreaseRate { get; set; } = 10.0f;
@@ -139,6 +173,7 @@ public partial class PetState : Node
             }
 
             GD.Print($"¡Comprado: {itemToBuy.ItemName}! Tienes {PlayerInventory[itemID]}.");
+            GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
             // Notificar a la UI que las monedas cambiaron
             return true;
         }
@@ -179,6 +214,7 @@ public partial class PetState : Node
         Health += itemToEat.HealthRestore;
 
         GD.Print($"¡Consumido: {itemToEat.ItemName}! Quedan {PlayerInventory[itemID]}.");
+        GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
 
         // ¡No es necesario emitir la señal aquí!
         // Los 'setters' de Hunger, Happiness, etc., en KanuaPet.cs

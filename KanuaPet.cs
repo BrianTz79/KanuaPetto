@@ -9,6 +9,10 @@ public partial class KanuaPet : Node2D
     private double _happinessTimer = 0.0;
     private double _healthTimer = 0.0;
 
+    [Export] private SpeechBubble _speechBubble;
+
+    private Timer _idleTalkTimer;
+
     // --- ¡CAMBIO AQUÍ! ---
     // Ya no es [Export]. Godot ya no intentará ponerle
     // el valor "90" del archivo .tscn antes de _Ready().
@@ -50,7 +54,31 @@ public partial class KanuaPet : Node2D
         
         // 1. AHORA _Ready() se ejecuta PRIMERO
         _petState = GetNode<PetState>("/root/PetState");
+
+        // --- ¡AGREGA ESTA LÍNEA! ---
+        // Buscamos el nodo hijo llamado "SpeechBubble" automáticamente
+        _speechBubble = GetNode<SpeechBubble>("SpeechBubble");
+
+        base._Ready(); // Llamar al base si es necesario
+        
+        // Timer para hablar aleatoriamente cada 10-20 segundos
+        _idleTalkTimer = new Timer();
+        _idleTalkTimer.WaitTime = 15.0f;
+        _idleTalkTimer.Timeout += OnIdleTalk;
+        AddChild(_idleTalkTimer);
+        _idleTalkTimer.Start();
     
+    }
+
+    private void OnIdleTalk()
+    {
+        // 30% de probabilidad de hablar cuando está quieto
+        if (GD.Randf() < 0.3f)
+        {
+            var personality = _petState.CurrentPersonality;
+            string msg = DialogueData.GetRandomPhrase(personality, DialogueData.IdlePhrases);
+            _speechBubble.ShowMessage(msg);
+        }
     }
     
     // ... (El resto del script _Process, Feed, etc. está perfecto) ...
@@ -102,6 +130,13 @@ public partial class KanuaPet : Node2D
         {
             // 3. Si se pudo consumir, reproducimos la animación
             _petAnimation.Play("eat");
+
+            _petState.ChangeAffinity(1);
+
+            // Decir frase de comer
+             var personality = _petState.CurrentPersonality;
+             string msg = DialogueData.GetRandomPhrase(personality, DialogueData.EatingPhrases);
+             _speechBubble.ShowMessage(msg);
             
             // Las estadísticas se actualizan solas porque ConsumeFood()
             // cambia los valores en PetState, lo que dispara

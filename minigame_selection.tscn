@@ -1,6 +1,31 @@
-[gd_scene load_steps=2 format=3 uid="uid://codqn6uxdt5r1"]
+[gd_scene load_steps=7 format=3 uid="uid://codqn6uxdt5r1"]
 
 [ext_resource type="Script" uid="uid://dcyo4pwwd883" path="res://MinigameSelection.cs" id="1_0rvgk"]
+[ext_resource type="Texture2D" uid="uid://dmyohxmjrer46" path="res://sprites/Fondos/fondoseleccionMinijuegos.jpg" id="2_5sf32"]
+[ext_resource type="Texture2D" uid="uid://11hi0i3weun6" path="res://sprites/Fondos/fondoestadisticas.jpg" id="3_307sr"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7x2d6"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+texture = ExtResource("3_307sr")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_uremd"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+texture = ExtResource("3_307sr")
+modulate_color = Color(0.40069774, 0.40069774, 0.40069768, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wfwjt"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+texture = ExtResource("3_307sr")
+modulate_color = Color(0.6706895, 0.6706895, 0.6706895, 1)
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -10,6 +35,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_0rvgk")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_5sf32")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -29,8 +63,19 @@ grow_vertical = 2
 layout_mode = 2
 text = "Selección de Minijuegos"
 
+[node name="Button2" type="Button" parent="VBoxContainer"]
+layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
+theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
+text = "Jugar Gato"
+
 [node name="Button" type="Button" parent="VBoxContainer"]
 layout_mode = 2
+theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
+theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
 text = "Volver"
 
+[connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_tic_tac_toe_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_back_button_pressed"]

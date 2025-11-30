@@ -1,7 +1,43 @@
-[gd_scene load_steps=3 format=3 uid="uid://cws3ramwifl1y"]
+[gd_scene load_steps=9 format=3 uid="uid://cws3ramwifl1y"]
 
 [ext_resource type="Script" uid="uid://dgc8k2p2k7hr7" path="res://PetUI.cs" id="1_x1jjm"]
 [ext_resource type="Texture2D" uid="uid://b8nbaml8064qx" path="res://sprites/Elementos/coin.png" id="2_5wg73"]
+[ext_resource type="Texture2D" uid="uid://c2gfxpfubdmk5" path="res://sprites/Fondos/fondoboton.jpg" id="2_i1ibr"]
+[ext_resource type="Texture2D" uid="uid://11hi0i3weun6" path="res://sprites/Fondos/fondoestadisticas.jpg" id="4_epg10"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_epg10"]
+content_margin_left = 15.0
+content_margin_top = 20.0
+content_margin_right = 15.0
+content_margin_bottom = 25.0
+texture = ExtResource("2_i1ibr")
+texture_margin_left = 20.0
+texture_margin_right = 20.0
+axis_stretch_horizontal = 2
+axis_stretch_vertical = 2
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7x2d6"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+texture = ExtResource("4_epg10")
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_uremd"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+texture = ExtResource("4_epg10")
+modulate_color = Color(0.40069774, 0.40069774, 0.40069768, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_wfwjt"]
+content_margin_left = 5.0
+content_margin_top = 5.0
+content_margin_right = 5.0
+content_margin_bottom = 5.0
+texture = ExtResource("4_epg10")
+modulate_color = Color(0.6706895, 0.6706895, 0.6706895, 1)
 
 [node name="PetUI" type="CanvasLayer" node_paths=PackedStringArray("_hungerBar", "_happinessBar", "_healthBar")]
 script = ExtResource("1_x1jjm")
@@ -18,6 +54,7 @@ grow_vertical = 2
 
 [node name="StatsBanner" type="PanelContainer" parent="MainContainer"]
 layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_epg10")
 
 [node name="StatsContainer" type="HBoxContainer" parent="MainContainer/StatsBanner"]
 layout_mode = 2
@@ -91,21 +128,33 @@ alignment = 1
 [node name="InventoryButton" type="Button" parent="MainContainer/BottomBar"]
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
+theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
 text = "Inventario"
 
 [node name="ShopButton" type="Button" parent="MainContainer/BottomBar"]
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
+theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
 text = "Tienda"
 
 [node name="FeedButton" type="Button" parent="MainContainer/BottomBar"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 10
+theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
+theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
 text = "Alimentar"
 
 [node name="PlayButton" type="Button" parent="MainContainer/BottomBar"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
+theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
+theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
+theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
 text = "Jugar"

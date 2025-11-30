@@ -1,0 +1,87 @@
+[gd_scene load_steps=5 format=3 uid="uid://chrndgodrkyup"]
+
+[ext_resource type="Script" uid="uid://ddbc61kstlv2w" path="res://LoginScreen.cs" id="1_aidc3"]
+[ext_resource type="Texture2D" uid="uid://daxw4vqt88rxl" path="res://sprites/Fondos/fondoInicioSesion.jpg" id="2_p8x2n"]
+[ext_resource type="Texture2D" uid="uid://bw03i3psoqwxy" path="res://sprites/Fondos/cuadradoInicio.jpg" id="3_gbykt"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_0tk5f"]
+content_margin_left = 30.0
+content_margin_top = 30.0
+content_margin_right = 30.0
+content_margin_bottom = 30.0
+texture = ExtResource("3_gbykt")
+
+[node name="LoginScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+script = ExtResource("1_aidc3")
+
+[node name="Background" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -12.3
+anchor_top = -6.65
+anchor_right = 41.1
+anchor_bottom = 22.85
+offset_left = -64.0
+offset_top = -38.0
+offset_right = -1048.0
+offset_bottom = -570.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_p8x2n")
+expand_mode = 1
+
+[node name="LoginBox" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -99.5
+offset_top = -95.0
+offset_right = 99.5
+offset_bottom = 95.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxTexture_0tk5f")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="LoginBox"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="LoginBox/VBoxContainer"]
+layout_mode = 2
+text = "Bienvenido a Kanua Petto"
+
+[node name="UsernameInput" type="LineEdit" parent="LoginBox/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Usuario"
+
+[node name="PasswordInput" type="LineEdit" parent="LoginBox/VBoxContainer"]
+layout_mode = 2
+placeholder_text = "Contraseña"
+secret = true
+
+[node name="LoginButton" type="Button" parent="LoginBox/VBoxContainer"]
+layout_mode = 2
+text = "Iniciar Sesión"
+
+[node name="RegisterButton" type="Button" parent="LoginBox/VBoxContainer"]
+layout_mode = 2
+text = "Registrarse"
+
+[node name="StatusLabel" type="Label" parent="LoginBox/VBoxContainer"]
+layout_mode = 2

@@ -11,13 +11,14 @@ config_version=5
 [application]
 
 config/name="KanuaPetto"
-run/main_scene="uid://kdkfoqonifeg"
+run/main_scene="uid://chrndgodrkyup"
 config/features=PackedStringArray("4.5", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
 PetState="*res://PetState.cs"
+NetworkManager="*res://NetworkManager.cs"
 
 [dotnet]
 

@@ -1,9 +1,26 @@
-[gd_scene load_steps=2 format=3 uid="uid://cyliwmyehgwuq"]
+[gd_scene load_steps=5 format=3 uid="uid://cyliwmyehgwuq"]
 
 [ext_resource type="Script" uid="uid://cl1ydj6e7aa6m" path="res://ShopScreen.cs" id="1_56tbl"]
+[ext_resource type="Texture2D" uid="uid://bf186ufs6lfpj" path="res://sprites/Fondos/fondoTienda.jpg" id="2_sx607"]
+[ext_resource type="Texture2D" uid="uid://blygfxm7evf8d" path="res://sprites/Fondos/fondoTicTacMinijuego.jpg" id="3_0gb0j"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mqxf6"]
+content_margin_left = 25.0
+content_margin_top = 25.0
+content_margin_right = 25.0
+content_margin_bottom = 25.0
+texture = ExtResource("3_0gb0j")
 
 [node name="CanvasLayer" type="CanvasLayer"]
 script = ExtResource("1_56tbl")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("2_sx607")
 
 [node name="ShopWindow" type="PanelContainer" parent="."]
 custom_minimum_size = Vector2(600, 400)
@@ -20,6 +37,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
+theme_override_styles/panel = SubResource("StyleBoxTexture_mqxf6")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="ShopWindow"]
 layout_mode = 2

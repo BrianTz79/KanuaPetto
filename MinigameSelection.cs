@@ -7,5 +7,13 @@ public partial class MinigameSelection : Control
     public void _on_back_button_pressed()
     {
         GetTree().ChangeSceneToFile("res://main.tscn");
+        
     }
+
+
+    public void _on_tic_tac_toe_button_pressed()
+    {
+        GetTree().ChangeSceneToFile("res://TicTacToe.tscn");
+    }
+
 }
