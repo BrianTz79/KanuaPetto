@@ -1,12 +1,13 @@
-[gd_scene load_steps=2 format=3 uid="uid://cws3ramwifl1y"]
+[gd_scene load_steps=3 format=3 uid="uid://cws3ramwifl1y"]
 
 [ext_resource type="Script" uid="uid://dgc8k2p2k7hr7" path="res://PetUI.cs" id="1_x1jjm"]
+[ext_resource type="Texture2D" uid="uid://b8nbaml8064qx" path="res://sprites/Elementos/coin.png" id="2_5wg73"]
 
 [node name="PetUI" type="CanvasLayer" node_paths=PackedStringArray("_hungerBar", "_happinessBar", "_healthBar")]
 script = ExtResource("1_x1jjm")
-_hungerBar = NodePath("MainContainer/StatsContainer/HungerContainer/HungerBar")
-_happinessBar = NodePath("MainContainer/StatsContainer/HappinessContainer/HappinessBar")
-_healthBar = NodePath("MainContainer/StatsContainer/HealthContainer/HealthBar")
+_hungerBar = NodePath("MainContainer/StatsBanner/StatsContainer/HungerContainer/HungerBar")
+_happinessBar = NodePath("MainContainer/StatsBanner/StatsContainer/HappinessContainer/HappinessBar")
+_healthBar = NodePath("MainContainer/StatsBanner/StatsContainer/HealthContainer/HealthBar")
 
 [node name="MainContainer" type="VBoxContainer" parent="."]
 anchors_preset = 15
@@ -15,70 +16,95 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="StatsContainer" type="HBoxContainer" parent="MainContainer"]
+[node name="StatsBanner" type="PanelContainer" parent="MainContainer"]
+layout_mode = 2
+
+[node name="StatsContainer" type="HBoxContainer" parent="MainContainer/StatsBanner"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 100
 alignment = 1
 
-[node name="HungerContainer" type="VBoxContainer" parent="MainContainer/StatsContainer"]
+[node name="HungerContainer" type="VBoxContainer" parent="MainContainer/StatsBanner/StatsContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 
-[node name="Hambre" type="Label" parent="MainContainer/StatsContainer/HungerContainer"]
+[node name="Hambre" type="Label" parent="MainContainer/StatsBanner/StatsContainer/HungerContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 32
 text = "Hambre"
 
-[node name="HungerBar" type="ProgressBar" parent="MainContainer/StatsContainer/HungerContainer"]
+[node name="HungerBar" type="ProgressBar" parent="MainContainer/StatsBanner/StatsContainer/HungerContainer"]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 
-[node name="HappinessContainer" type="VBoxContainer" parent="MainContainer/StatsContainer"]
+[node name="HappinessContainer" type="VBoxContainer" parent="MainContainer/StatsBanner/StatsContainer"]
 layout_mode = 2
 
-[node name="Felicidad" type="Label" parent="MainContainer/StatsContainer/HappinessContainer"]
+[node name="Felicidad" type="Label" parent="MainContainer/StatsBanner/StatsContainer/HappinessContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 32
 text = "Felicidad"
 
-[node name="HappinessBar" type="ProgressBar" parent="MainContainer/StatsContainer/HappinessContainer"]
+[node name="HappinessBar" type="ProgressBar" parent="MainContainer/StatsBanner/StatsContainer/HappinessContainer"]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 
-[node name="HealthContainer" type="VBoxContainer" parent="MainContainer/StatsContainer"]
+[node name="HealthContainer" type="VBoxContainer" parent="MainContainer/StatsBanner/StatsContainer"]
 layout_mode = 2
 
-[node name="Label" type="Label" parent="MainContainer/StatsContainer/HealthContainer"]
+[node name="Label" type="Label" parent="MainContainer/StatsBanner/StatsContainer/HealthContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_font_sizes/font_size = 32
 text = "Salud"
 
-[node name="HealthBar" type="ProgressBar" parent="MainContainer/StatsContainer/HealthContainer"]
+[node name="HealthBar" type="ProgressBar" parent="MainContainer/StatsBanner/StatsContainer/HealthContainer"]
 custom_minimum_size = Vector2(250, 0)
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer"]
+[node name="MiddleArea" type="Control" parent="MainContainer"]
 layout_mode = 2
+size_flags_vertical = 3
+
+[node name="CoinContainer" type="HBoxContainer" parent="MainContainer/MiddleArea"]
+layout_mode = 1
+offset_right = 1152.0
+offset_bottom = 50.0
 size_flags_vertical = 0
 
-[node name="Label" type="Label" parent="MainContainer/VBoxContainer"]
-layout_mode = 2
-text = "Monedas"
-
-[node name="CoinsLabel" type="Label" parent="MainContainer/VBoxContainer"]
+[node name="CoinsLabel" type="Label" parent="MainContainer/MiddleArea/CoinContainer"]
 layout_mode = 2
 
-[node name="Button" type="Button" parent="MainContainer"]
+[node name="TextureRect" type="TextureRect" parent="MainContainer/MiddleArea/CoinContainer"]
+layout_mode = 2
+texture = ExtResource("2_5wg73")
+expand_mode = 2
+
+[node name="BottomBar" type="HBoxContainer" parent="MainContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+alignment = 1
+
+[node name="InventoryButton" type="Button" parent="MainContainer/BottomBar"]
+layout_mode = 2
+size_flags_vertical = 8
+text = "Inventario"
+
+[node name="ShopButton" type="Button" parent="MainContainer/BottomBar"]
+layout_mode = 2
+size_flags_vertical = 8
+text = "Tienda"
+
+[node name="FeedButton" type="Button" parent="MainContainer/BottomBar"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 10
 text = "Alimentar"
 
-[node name="Button2" type="Button" parent="MainContainer"]
+[node name="PlayButton" type="Button" parent="MainContainer/BottomBar"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8

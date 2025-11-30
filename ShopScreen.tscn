@@ -1,0 +1,44 @@
+[gd_scene load_steps=2 format=3 uid="uid://cyliwmyehgwuq"]
+
+[ext_resource type="Script" uid="uid://cl1ydj6e7aa6m" path="res://ShopScreen.cs" id="1_56tbl"]
+
+[node name="CanvasLayer" type="CanvasLayer"]
+script = ExtResource("1_56tbl")
+
+[node name="ShopWindow" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(600, 400)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="ShopWindow"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="ShopWindow/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Tienda"
+
+[node name="ScrollContainer" type="ScrollContainer" parent="ShopWindow/VBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ItemGrid" type="GridContainer" parent="ShopWindow/VBoxContainer/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+columns = 3
+
+[node name="BackButton" type="Button" parent="ShopWindow/VBoxContainer"]
+layout_mode = 2
+text = "Volver"

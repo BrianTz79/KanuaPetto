@@ -20,20 +20,17 @@ texture = ExtResource("1_1bvp3")
 expand_mode = 3
 
 [node name="KanuaPet" parent="." instance=ExtResource("1_h2yge")]
-HungerDecreaseRate = 10.0
-Hunger = 90
-Happiness = 90
-Coins = 50
 
 [node name="PetUI" parent="." node_paths=PackedStringArray("_coinsLabel") instance=ExtResource("2_1bvp3")]
-_coinsLabel = NodePath("MainContainer/StatsContainer/VBoxContainer/CoinsLabel")
+_coinsLabel = NodePath("MainContainer/MiddleArea/CoinContainer/CoinsLabel")
 
 [node name="MainContainer" parent="PetUI" index="0"]
 offset_left = 1.0
 offset_right = 1.0
 
-[connection signal="StatsChanged" from="KanuaPet" to="PetUI" method="OnPetStatsChanged"]
-[connection signal="pressed" from="PetUI/MainContainer/Button" to="KanuaPet" method="Feed"]
-[connection signal="pressed" from="PetUI/MainContainer/Button2" to="KanuaPet" method="_on_play_button_pressed"]
+[connection signal="pressed" from="PetUI/MainContainer/BottomBar/InventoryButton" to="KanuaPet" method="_on_inventory_button_pressed"]
+[connection signal="pressed" from="PetUI/MainContainer/BottomBar/ShopButton" to="KanuaPet" method="_on_shop_button_pressed"]
+[connection signal="pressed" from="PetUI/MainContainer/BottomBar/FeedButton" to="KanuaPet" method="Feed"]
+[connection signal="pressed" from="PetUI/MainContainer/BottomBar/PlayButton" to="KanuaPet" method="_on_play_button_pressed"]
 
 [editable path="PetUI"]
