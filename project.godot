@@ -19,10 +19,20 @@ config/icon="res://icon.svg"
 
 PetState="*res://PetState.cs"
 NetworkManager="*res://NetworkManager.cs"
+AudioManager="*res://AudioManager.tscn"
+
+[display]
+
+window/stretch/mode="viewport"
+window/stretch/aspect="keep_width"
 
 [dotnet]
 
 project/assembly_name="KanuaPetto"
+
+[gui]
+
+theme/custom="uid://cfee2r3jkupuf"
 
 [rendering]
 

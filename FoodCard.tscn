@@ -1,11 +1,24 @@
-[gd_scene load_steps=2 format=3 uid="uid://c58j7n15bsymi"]
+[gd_scene load_steps=4 format=3 uid="uid://c58j7n15bsymi"]
 
 [ext_resource type="Script" uid="uid://cyaw4swlbf77m" path="res://FoodCard.cs" id="1_43o2c"]
+[ext_resource type="Texture2D" uid="uid://d34aidvdqrjc8" path="res://sprites/Fondos/fondotarjetacomida.png" id="1_twtrq"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_02jxu"]
+content_margin_left = 15.0
+content_margin_top = 15.0
+content_margin_right = 15.0
+content_margin_bottom = 15.0
+texture = ExtResource("1_twtrq")
+texture_margin_left = 5.0
+texture_margin_top = 5.0
+texture_margin_right = 5.0
+texture_margin_bottom = 5.0
 
 [node name="FoodCard" type="PanelContainer"]
 custom_minimum_size = Vector2(150, 200)
 offset_right = 40.0
 offset_bottom = 40.0
+theme_override_styles/panel = SubResource("StyleBoxTexture_02jxu")
 script = ExtResource("1_43o2c")
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
@@ -14,7 +27,8 @@ layout_mode = 2
 [node name="Icon" type="TextureRect" parent="VBoxContainer"]
 custom_minimum_size = Vector2(100, 100)
 layout_mode = 2
-size_flags_vertical = 3
+size_flags_horizontal = 4
+size_flags_vertical = 6
 expand_mode = 3
 stretch_mode = 5
 

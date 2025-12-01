@@ -50,12 +50,13 @@ text = "Tienda"
 [node name="ScrollContainer" type="ScrollContainer" parent="ShopWindow/VBoxContainer"]
 layout_mode = 2
 size_flags_vertical = 3
+horizontal_scroll_mode = 0
 
 [node name="ItemGrid" type="GridContainer" parent="ShopWindow/VBoxContainer/ScrollContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
-columns = 3
+columns = 2
 
 [node name="BackButton" type="Button" parent="ShopWindow/VBoxContainer"]
 layout_mode = 2

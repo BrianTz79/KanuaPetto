@@ -6,31 +6,40 @@
 
 [node name="Main" type="Node2D"]
 
-[node name="TextureRect" type="TextureRect" parent="."]
+[node name="BackgroundLayer" type="CanvasLayer" parent="."]
+layer = -1
+
+[node name="TextureRect" type="TextureRect" parent="BackgroundLayer"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 1.0
-offset_right = 1153.0
-offset_bottom = 648.0
 grow_horizontal = 2
 grow_vertical = 2
-size_flags_horizontal = 4
 texture = ExtResource("1_1bvp3")
-expand_mode = 3
+expand_mode = 1
 
-[node name="KanuaPet" parent="." instance=ExtResource("1_h2yge")]
+[node name="PetArea" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = 604.0
+offset_top = 377.0
+offset_right = 604.0
+offset_bottom = 377.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="KanuaPet" parent="PetArea" instance=ExtResource("1_h2yge")]
 
 [node name="PetUI" parent="." node_paths=PackedStringArray("_coinsLabel") instance=ExtResource("2_1bvp3")]
 _coinsLabel = NodePath("MainContainer/MiddleArea/CoinContainer/CoinsLabel")
 
-[node name="MainContainer" parent="PetUI" index="0"]
-offset_left = 1.0
-offset_right = 1.0
-
-[connection signal="pressed" from="PetUI/MainContainer/BottomBar/InventoryButton" to="KanuaPet" method="_on_inventory_button_pressed"]
-[connection signal="pressed" from="PetUI/MainContainer/BottomBar/ShopButton" to="KanuaPet" method="_on_shop_button_pressed"]
-[connection signal="pressed" from="PetUI/MainContainer/BottomBar/FeedButton" to="KanuaPet" method="Feed"]
-[connection signal="pressed" from="PetUI/MainContainer/BottomBar/PlayButton" to="KanuaPet" method="_on_play_button_pressed"]
+[connection signal="pressed" from="PetUI/MainContainer/BottomBar/InventoryButton" to="PetArea/KanuaPet" method="_on_inventory_button_pressed"]
+[connection signal="pressed" from="PetUI/MainContainer/BottomBar/ShopButton" to="PetArea/KanuaPet" method="_on_shop_button_pressed"]
+[connection signal="pressed" from="PetUI/MainContainer/BottomBar/FeedButton" to="PetArea/KanuaPet" method="Feed"]
+[connection signal="pressed" from="PetUI/MainContainer/BottomBar/PlayButton" to="PetArea/KanuaPet" method="_on_play_button_pressed"]
 
 [editable path="PetUI"]

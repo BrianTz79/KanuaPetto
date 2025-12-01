@@ -27,6 +27,16 @@ public partial class PetUI : CanvasLayer
 
         // 3. Forzamos una actualización inicial
         OnPetStatsChanged(_petState.Hunger, _petState.Happiness, _petState.Health, _petState.Coins);
+
+        var audioManager = GetNode<AudioManager>("/root/AudioManager");
+        foreach (var node in FindChildren("*", "Button", true, false))
+        {
+            if (node is Button btn)
+            {
+                btn.Pressed += () => audioManager.PlaySFX("res://audio/click.wav");
+            }
+        }
+        
     }
 
     // --- ¡¡AQUÍ ESTÁ LA SOLUCIÓN!! ---

@@ -25,6 +25,22 @@ public partial class LoginScreen : Control
         _networkManager.LoginSuccess += OnLoginSuccess;
         _networkManager.LoginFailed += OnLoginFailed;
 
+        GetNode<AudioManager>("/root/AudioManager").PlayMusic("res://audio/3-01. Main Theme.mp3");
+
+        var audioManager = GetNode<AudioManager>("/root/AudioManager");
+        // Busca todos los botones de ESTA escena y conéctales el sonido
+        foreach (var node in FindChildren("*", "Button", true, false))
+        {
+            if (node is Button btn)
+            {
+                // Desconectamos primero por seguridad para no tener doble sonido
+                if (btn.IsConnected(Button.SignalName.Pressed, Callable.From(() => audioManager.PlaySFX("res://audio/click.wav"))))
+                    continue;
+                    
+                btn.Pressed += () => audioManager.PlaySFX("res://audio/click.wav");
+            }
+        }
+
         _statusLabel.Text = "Verificando sesión guardada...";
         bool haySesion = _networkManager.CheckAutoLogin();
 

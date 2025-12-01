@@ -119,6 +119,9 @@ public partial class KanuaPet : Node2D
         if (string.IsNullOrEmpty(firstFoodID))
         {
             GD.Print("¡No hay comida en el inventario! Visita la tienda.");
+            var personality = _petState.CurrentPersonality;
+            string msg = DialogueData.GetRandomPhrase(personality, DialogueData.NoFoodPhrases);
+            _speechBubble.ShowMessage(msg);
             // (Aquí podrías mostrar un mensaje en la UI)
             return;
         }
@@ -132,6 +135,9 @@ public partial class KanuaPet : Node2D
             _petAnimation.Play("eat");
 
             _petState.ChangeAffinity(1);
+
+            var audio = GetNode<AudioManager>("/root/AudioManager");
+            audio.PlaySFXPoly("res://audio/eat.wav");
 
             // Decir frase de comer
              var personality = _petState.CurrentPersonality;

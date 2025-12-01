@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://cws3ramwifl1y"]
+[gd_scene load_steps=15 format=3 uid="uid://cws3ramwifl1y"]
 
 [ext_resource type="Script" uid="uid://dgc8k2p2k7hr7" path="res://PetUI.cs" id="1_x1jjm"]
 [ext_resource type="Texture2D" uid="uid://b8nbaml8064qx" path="res://sprites/Elementos/coin.png" id="2_5wg73"]
@@ -15,6 +15,44 @@ texture_margin_left = 20.0
 texture_margin_right = 20.0
 axis_stretch_horizontal = 2
 axis_stretch_vertical = 2
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_epg10"]
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7x2d6"]
+bg_color = Color(1, 0.6, 0, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_uremd"]
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_wfwjt"]
+bg_color = Color(0.37665603, 0.7608072, 0.25854564, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_0j4sc"]
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qxy0k"]
+bg_color = Color(0.8509804, 0.047058824, 0.23137255, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7x2d6"]
 content_margin_left = 5.0
@@ -73,8 +111,10 @@ theme_override_font_sizes/font_size = 32
 text = "Hambre"
 
 [node name="HungerBar" type="ProgressBar" parent="MainContainer/StatsBanner/StatsContainer/HungerContainer"]
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(250, 25)
 layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_epg10")
+theme_override_styles/fill = SubResource("StyleBoxFlat_7x2d6")
 
 [node name="HappinessContainer" type="VBoxContainer" parent="MainContainer/StatsBanner/StatsContainer"]
 layout_mode = 2
@@ -86,8 +126,10 @@ theme_override_font_sizes/font_size = 32
 text = "Felicidad"
 
 [node name="HappinessBar" type="ProgressBar" parent="MainContainer/StatsBanner/StatsContainer/HappinessContainer"]
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(250, 25)
 layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_uremd")
+theme_override_styles/fill = SubResource("StyleBoxFlat_wfwjt")
 
 [node name="HealthContainer" type="VBoxContainer" parent="MainContainer/StatsBanner/StatsContainer"]
 layout_mode = 2
@@ -99,8 +141,10 @@ theme_override_font_sizes/font_size = 32
 text = "Salud"
 
 [node name="HealthBar" type="ProgressBar" parent="MainContainer/StatsBanner/StatsContainer/HealthContainer"]
-custom_minimum_size = Vector2(250, 0)
+custom_minimum_size = Vector2(250, 25)
 layout_mode = 2
+theme_override_styles/background = SubResource("StyleBoxFlat_0j4sc")
+theme_override_styles/fill = SubResource("StyleBoxFlat_qxy0k")
 
 [node name="MiddleArea" type="Control" parent="MainContainer"]
 layout_mode = 2
@@ -128,6 +172,7 @@ alignment = 1
 [node name="InventoryButton" type="Button" parent="MainContainer/BottomBar"]
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
 theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
@@ -136,6 +181,7 @@ text = "Inventario"
 [node name="ShopButton" type="Button" parent="MainContainer/BottomBar"]
 layout_mode = 2
 size_flags_vertical = 8
+theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
 theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
@@ -145,6 +191,7 @@ text = "Tienda"
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 10
+theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
 theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
@@ -154,6 +201,7 @@ text = "Alimentar"
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 8
+theme_override_font_sizes/font_size = 25
 theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
 theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")

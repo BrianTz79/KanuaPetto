@@ -182,16 +182,16 @@ animations = [{
 script = ExtResource("1_elfru")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
-position = Vector2(594, 339)
+position = Vector2(-7.999999, 1.8189894e-12)
 scale = Vector2(0.4, 0.4)
 sprite_frames = SubResource("SpriteFrames_f6i17")
 animation = &"eat"
 autoplay = "idle"
 
 [node name="SpeechBubble" parent="." instance=ExtResource("4_imol1")]
-offset_left = 768.0
-offset_top = 160.0
-offset_right = 960.0
-offset_bottom = 256.0
+offset_left = 192.0
+offset_top = -224.0
+offset_right = 384.0
+offset_bottom = -128.0
 
 [connection signal="animation_finished" from="AnimatedSprite2D" to="." method="_on_animated_sprite_2d_animation_finished"]

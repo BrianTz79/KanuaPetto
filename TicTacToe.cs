@@ -32,7 +32,28 @@ public partial class TicTacToe : Control
             // Hacemos que los botones se expandan para verse bien
             _gridButtons[i].CustomMinimumSize = new Vector2(100, 100); 
             int index = i; 
-            _gridButtons[i].Pressed += () => OnCellPressed(index);
+
+            _gridButtons[i].Pressed += () => {
+                GetNode<AudioManager>("/root/AudioManager").PlaySFX("res://audio/click.wav");
+                OnCellPressed(index);
+            };
+
+
+
+        }
+
+        var audioManager = GetNode<AudioManager>("/root/AudioManager");
+        // Busca todos los botones de ESTA escena y conéctales el sonido
+        foreach (var node in FindChildren("*", "Button", true, false))
+        {
+            if (node is Button btn)
+            {
+                // Desconectamos primero por seguridad para no tener doble sonido
+                if (btn.IsConnected(Button.SignalName.Pressed, Callable.From(() => audioManager.PlaySFX("res://audio/click.wav"))))
+                    continue;
+                    
+                btn.Pressed += () => audioManager.PlaySFX("res://audio/click.wav");
+            }
         }
 
         ResetGame();
@@ -139,11 +160,13 @@ public partial class TicTacToe : Control
     private void EndGame(bool playerWon, bool draw = false)
     {
         _gameOver = true;
+        var audio = GetNode<AudioManager>("/root/AudioManager");
         
         if (playerWon)
         {
             _statusLabel.Text = "¡GANASTE! +20 Monedas";
-            
+            audio.PlaySFX("res://audio/win.wav");
+            audio.PlaySFXPoly("res://audio/coin.wav");
             // --- AQUÍ DAMOS LA RECOMPENSA ---
             _petState.Coins += 20;
             _petState.Happiness += 5; 
@@ -154,6 +177,7 @@ public partial class TicTacToe : Control
         else if (draw)
         {
             _statusLabel.Text = "Empate. +5 Monedas";
+            audio.PlaySFX("res://audio/coin.wav");
             _petState.Coins += 5;
             GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
         }

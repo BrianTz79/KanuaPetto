@@ -87,6 +87,11 @@ public partial class PetState : Node
         GD.Print($"Afinidad cambiada: {amount}. Total: {Affinity} ({CurrentPersonality})");
 
         GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
+
+        if (amount > 0)
+        {
+            GetNode<AudioManager>("/root/AudioManager").PlaySFXPoly("res://audio/levelup.wav");
+        }
     }
 
 
@@ -116,16 +121,14 @@ public partial class PetState : Node
 
     private void LoadAllFoodItems()
     {
-        // Vamos a crear 2 comidas de ejemplo.
-        // (¡Necesitarás crear las imágenes para "res://sprites/food/apple.png"!)
-
+        // --- Ítems Originales ---
         var apple = new FoodItem
         {
             ItemID = "apple",
             ItemName = "Manzana",
             Description = "Una manzana roja y crujiente.",
             Price = 10,
-            Texture = GD.Load<Texture2D>("res://sprites/food/apple.png"), // ¡Asegúrate de tener esta imagen!
+            Texture = GD.Load<Texture2D>("res://sprites/food/manzana.png"),
             HungerRestore = 15,
             HappinessRestore = 5,
             HealthRestore = 1
@@ -137,16 +140,123 @@ public partial class PetState : Node
             ItemName = "Pastel",
             Description = "Un delicioso pedazo de pastel.",
             Price = 25,
-            Texture = GD.Load<Texture2D>("res://sprites/food/cake.png"), // ¡Asegúrate de tener esta imagen!
+            Texture = GD.Load<Texture2D>("res://sprites/food/pastel.png"),
             HungerRestore = 30,
             HappinessRestore = 20,
-            HealthRestore = -5 // ¡El azúcar no es saludable!
+            HealthRestore = -5
         };
 
+        // --- Nuevos Ítems ---
+
+        var cookie = new FoodItem
+        {
+            ItemID = "cookie",
+            ItemName = "Galletas",
+            Description = "Crujientes y con chispas de chocolate.",
+            Price = 8,
+            // ¡Recuerda añadir esta imagen a tu carpeta!
+            Texture = GD.Load<Texture2D>("res://sprites/food/cookie.png"), 
+            HungerRestore = 10,
+            HappinessRestore = 8,
+            HealthRestore = -1
+        };
+
+        var chocoMilk = new FoodItem
+        {
+            ItemID = "chocomilk",
+            ItemName = "Leche con Chocolate",
+            Description = "Bebida fría y refrescante.",
+            Price = 12,
+            Texture = GD.Load<Texture2D>("res://sprites/food/chocomilk.png"),
+            HungerRestore = 10,
+            HappinessRestore = 15,
+            HealthRestore = 5
+        };
+
+        var croissant = new FoodItem
+        {
+            ItemID = "croissant",
+            ItemName = "Croissant",
+            Description = "Panecillo francés suave y mantequilloso.",
+            Price = 15,
+            Texture = GD.Load<Texture2D>("res://sprites/food/croissant.png"),
+            HungerRestore = 20,
+            HappinessRestore = 10,
+            HealthRestore = 2
+        };
+
+        var birria = new FoodItem
+        {
+            ItemID = "birria",
+            ItemName = "Birria",
+            Description = "Un caldito levanta muertos. ¡Delicioso!",
+            Price = 45,
+            Texture = GD.Load<Texture2D>("res://sprites/food/birria.png"),
+            HungerRestore = 50,
+            HappinessRestore = 25,
+            HealthRestore = 10
+        };
+
+        var tamal = new FoodItem
+        {
+            ItemID = "tamal",
+            ItemName = "Tamal",
+            Description = "Calientito y envuelto en hoja de maíz.",
+            Price = 18,
+            Texture = GD.Load<Texture2D>("res://sprites/food/tamal.png"),
+            HungerRestore = 35,
+            HappinessRestore = 10,
+            HealthRestore = 5
+        };
+
+        var tacos = new FoodItem
+        {
+            ItemID = "tacos",
+            ItemName = "Orden de Tacos",
+            Description = "Con todo y mucha salsa.",
+            Price = 30,
+            Texture = GD.Load<Texture2D>("res://sprites/food/tacos.png"),
+            HungerRestore = 40,
+            HappinessRestore = 20,
+            HealthRestore = 5
+        };
+
+        var burrito = new FoodItem
+        {
+            ItemID = "burro",
+            ItemName = "Burrito",
+            Description = "Tortilla de harina gigante rellena de felicidad.",
+            Price = 28,
+            Texture = GD.Load<Texture2D>("res://sprites/food/burro.png"),
+            HungerRestore = 45,
+            HappinessRestore = 15,
+            HealthRestore = 3
+        };
+
+        var maruchan = new FoodItem
+        {
+            ItemID = "maruchan",
+            ItemName = "Sopa Instantánea",
+            Description = "Barata y rápida. No muy nutritiva.",
+            Price = 5,
+            Texture = GD.Load<Texture2D>("res://sprites/food/maruchan.png"),
+            HungerRestore = 25,
+            HappinessRestore = 2,
+            HealthRestore = -5 // ¡Cuidado con la salud!
+        };
+
+        // --- Añadir al Diccionario ---
         AllFoodItems.Add(apple.ItemID, apple);
         AllFoodItems.Add(cake.ItemID, cake);
+        AllFoodItems.Add(cookie.ItemID, cookie);
+        AllFoodItems.Add(chocoMilk.ItemID, chocoMilk);
+        AllFoodItems.Add(croissant.ItemID, croissant);
+        AllFoodItems.Add(birria.ItemID, birria);
+        AllFoodItems.Add(tamal.ItemID, tamal);
+        AllFoodItems.Add(tacos.ItemID, tacos);
+        AllFoodItems.Add(burrito.ItemID, burrito);
+        AllFoodItems.Add(maruchan.ItemID, maruchan);
     }
-
     // --- Métodos para interactuar con la Tienda y el Inventario ---
 
     public bool BuyFood(string itemID)
