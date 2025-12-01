@@ -185,7 +185,7 @@ script = ExtResource("1_elfru")
 position = Vector2(-7.999999, 1.8189894e-12)
 scale = Vector2(0.4, 0.4)
 sprite_frames = SubResource("SpriteFrames_f6i17")
-animation = &"eat"
+animation = &"idle"
 autoplay = "idle"
 
 [node name="SpeechBubble" parent="." instance=ExtResource("4_imol1")]

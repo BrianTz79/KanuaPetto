@@ -1,64 +1,67 @@
 using Godot;
 using System;
-using System.Linq; // Necesario para revisar listas
+using System.Linq;
 
 public partial class TicTacToe : Control
 {
-    private Button[] _gridButtons = new Button[9];
+    #region Variables de Estado y Referencias
+    // Referencias a nodos de la UI y Estado Global
+    private PetState _petState;
     private Label _statusLabel;
+    
+    // Variables lógicas del juego
+    private Button[] _gridButtons = new Button[9];
     private bool _playerTurn = true;
     private bool _gameOver = false;
     private RandomNumberGenerator _rng = new RandomNumberGenerator();
+    #endregion
 
-    // Referencia al estado para dar dinero
-    private PetState _petState;
-
+    #region Métodos de Inicialización
     public override void _Ready()
     {
+        // Inicializar referencias globales y de UI
         _petState = GetNode<PetState>("/root/PetState");
+        _statusLabel = GetNode<Label>("MainContainer/StatusLabel");
         
-        // --- RUTAS ACTUALIZADAS ---
-        // Buscamos dentro de MainContainer
-        _statusLabel = GetNode<Label>("MainContainer/StatusLabel"); 
         var exitBtn = GetNode<Button>("MainContainer/ExitButton");
         var grid = GetNode<GridContainer>("MainContainer/BoardBackground/GridContainer");
-        // ---------------------------
 
+        // Configurar botón de salida
         exitBtn.Pressed += () => GetTree().ChangeSceneToFile("res://minigame_selection.tscn");
 
+        // Configurar la cuadrícula de botones (Tablero)
         for (int i = 0; i < 9; i++)
         {
             _gridButtons[i] = grid.GetChild<Button>(i);
-            // Hacemos que los botones se expandan para verse bien
             _gridButtons[i].CustomMinimumSize = new Vector2(100, 100); 
-            int index = i; 
-
-            _gridButtons[i].Pressed += () => {
+            
+            int index = i; // Copia local para la lambda
+            _gridButtons[i].Pressed += () => 
+            {
                 GetNode<AudioManager>("/root/AudioManager").PlaySFX("res://audio/click.wav");
                 OnCellPressed(index);
             };
-
-
-
         }
 
+        // Configurar sonidos genéricos para botones restantes (como ExitButton)
         var audioManager = GetNode<AudioManager>("/root/AudioManager");
-        // Busca todos los botones de ESTA escena y conéctales el sonido
         foreach (var node in FindChildren("*", "Button", true, false))
         {
             if (node is Button btn)
             {
-                // Desconectamos primero por seguridad para no tener doble sonido
-                if (btn.IsConnected(Button.SignalName.Pressed, Callable.From(() => audioManager.PlaySFX("res://audio/click.wav"))))
-                    continue;
-                    
-                btn.Pressed += () => audioManager.PlaySFX("res://audio/click.wav");
+                // Evitar duplicar la señal si ya fue conectada manualmente
+                if (!btn.IsConnected(Button.SignalName.Pressed, Callable.From(() => audioManager.PlaySFX("res://audio/click.wav"))))
+                {
+                    btn.Pressed += () => audioManager.PlaySFX("res://audio/click.wav");
+                }
             }
         }
 
         ResetGame();
     }
+    #endregion
 
+    #region Lógica del Juego (Core)
     private void ResetGame()
     {
         _playerTurn = true;
@@ -74,9 +77,10 @@ public partial class TicTacToe : Control
 
     private void OnCellPressed(int index)
     {
+        // Validar si la celda es válida
         if (_gameOver || !_playerTurn || _gridButtons[index].Text != "") return;
 
-        // Turno del Jugador
+        // Turno del Jugador (X)
         _gridButtons[index].Text = "X";
         
         if (CheckWin("X"))
@@ -91,10 +95,11 @@ public partial class TicTacToe : Control
             return;
         }
 
+        // Turno de la IA (O)
         _playerTurn = false;
         _statusLabel.Text = "Pensando...";
         
-        // Simular pensamiento de la IA (pequeña pausa)
+        // Pequeño retraso para simular pensamiento
         GetTree().CreateTimer(0.5f).Timeout += OmniAITurn;
     }
 
@@ -102,7 +107,7 @@ public partial class TicTacToe : Control
     {
         if (_gameOver) return;
 
-        // IA simple: Elige una casilla vacía al azar
+        // IA: Selecciona una casilla vacía al azar
         var emptyIndices = _gridButtons
             .Select((btn, index) => new { btn, index })
             .Where(x => x.btn.Text == "")
@@ -129,7 +134,9 @@ public partial class TicTacToe : Control
             }
         }
     }
+    #endregion
 
+    #region Verificación de Estado (Victoria/Empate)
     private bool CheckWin(string mark)
     {
         // Combinaciones ganadoras (índices 0-8)
@@ -154,9 +161,12 @@ public partial class TicTacToe : Control
 
     private bool IsDraw()
     {
+        // Si no hay botones vacíos, es empate
         return _gridButtons.All(b => b.Text != "");
     }
+    #endregion
 
+    #region Finalización y Recompensas
     private void EndGame(bool playerWon, bool draw = false)
     {
         _gameOver = true;
@@ -167,17 +177,19 @@ public partial class TicTacToe : Control
             _statusLabel.Text = "¡GANASTE! +20 Monedas";
             audio.PlaySFX("res://audio/win.wav");
             audio.PlaySFXPoly("res://audio/coin.wav");
-            // --- AQUÍ DAMOS LA RECOMPENSA ---
+            
+            // Otorgar recompensas
             _petState.Coins += 20;
             _petState.Happiness += 5; 
             
-            // ¡Importante! Guardar en la nube para asegurar el dinero
+            // Guardar progreso en la nube
             GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
         }
         else if (draw)
         {
             _statusLabel.Text = "Empate. +5 Monedas";
             audio.PlaySFX("res://audio/coin.wav");
+            
             _petState.Coins += 5;
             GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
         }
@@ -186,7 +198,8 @@ public partial class TicTacToe : Control
             _statusLabel.Text = "Perdiste... Intenta de nuevo.";
         }
         
-        // Reiniciar después de 2 segundos
+        // Reiniciar el juego después de 2 segundos
         GetTree().CreateTimer(2.0f).Timeout += ResetGame;
     }
+    #endregion
 }

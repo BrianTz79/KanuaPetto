@@ -3,88 +3,85 @@ using System;
 
 public partial class KanuaPet : Node2D
 {
+    #region Referencias y Variables
+    // Referencias a Nodos
     private PetState _petState;
+    private AnimatedSprite2D _petAnimation;
+    private Timer _idleTalkTimer;
+    
+    [Export] private SpeechBubble _speechBubble;
 
+    // Temporizadores internos para la degradación de estadísticas
     private double _hungerTimer = 0.0;
     private double _happinessTimer = 0.0;
     private double _healthTimer = 0.0;
+    #endregion
 
-    [Export] private SpeechBubble _speechBubble;
-
-    private Timer _idleTalkTimer;
-
-    // --- ¡CAMBIO AQUÍ! ---
-    // Ya no es [Export]. Godot ya no intentará ponerle
-    // el valor "90" del archivo .tscn antes de _Ready().
+    #region Propiedades (Wrappers de Estado)
+    // Estas propiedades actúan como puente directo al Singleton PetState
     public int Hunger
     {
         get => _petState.Hunger;
-        set => _petState.Hunger = value; // ¡Así de simple!
+        set => _petState.Hunger = value;
     }
 
     public int Happiness
     {
         get => _petState.Happiness;
-        set => _petState.Happiness = value; // ¡Así de simple!
+        set => _petState.Happiness = value;
     }
 
     public int Health
     {
         get => _petState.Health;
-        set => _petState.Health = value; // ¡Así de simple!
+        set => _petState.Health = value;
     }
 
     public int Coins
     {
         get => _petState.Coins;
-        set => _petState.Coins = value; // ¡Así de simple!
+        set => _petState.Coins = value;
     }
     
-    // Estos están bien, los leemos del Singleton
-    public float HungerDecreaseRate { get => _petState.HungerDecreaseRate; }
-    public float HappinessDecreaseRate { get => _petState.HappinessDecreaseRate; }
-    public float HealthDecreaseRate { get => _petState.HealthDecreaseRate; }
+    // Propiedades de solo lectura para tasas de disminución
+    public float HungerDecreaseRate => _petState.HungerDecreaseRate;
+    public float HappinessDecreaseRate => _petState.HappinessDecreaseRate;
+    public float HealthDecreaseRate => _petState.HealthDecreaseRate;
+    #endregion
 
-
-    private AnimatedSprite2D _petAnimation;
-
+    #region Ciclo de Vida
     public override void _Ready()
     {
+        base._Ready();
+
+        // Inicializar referencias
         _petAnimation = GetNode<AnimatedSprite2D>("AnimatedSprite2D");
-        
-        // 1. AHORA _Ready() se ejecuta PRIMERO
         _petState = GetNode<PetState>("/root/PetState");
+        _speechBubble = GetNode<SpeechBubble>("SpeechBubble"); // Referencia automática al nodo hijo
 
-        // --- ¡AGREGA ESTA LÍNEA! ---
-        // Buscamos el nodo hijo llamado "SpeechBubble" automáticamente
-        _speechBubble = GetNode<SpeechBubble>("SpeechBubble");
+        // Configurar temporizador para diálogos aleatorios
+        SetupIdleTalkTimer();
+    }
 
-        base._Ready(); // Llamar al base si es necesario
-        
-        // Timer para hablar aleatoriamente cada 10-20 segundos
+    public override void _Process(double delta)
+    {
+        HandleStatDegradation(delta);
+    }
+    #endregion
+
+    #region Lógica Interna
+    private void SetupIdleTalkTimer()
+    {
         _idleTalkTimer = new Timer();
-        _idleTalkTimer.WaitTime = 15.0f;
+        _idleTalkTimer.WaitTime = 15.0f; // Intervalo de intento de habla
         _idleTalkTimer.Timeout += OnIdleTalk;
         AddChild(_idleTalkTimer);
         _idleTalkTimer.Start();
-    
     }
 
-    private void OnIdleTalk()
+    private void HandleStatDegradation(double delta)
     {
-        // 30% de probabilidad de hablar cuando está quieto
-        if (GD.Randf() < 0.3f)
-        {
-            var personality = _petState.CurrentPersonality;
-            string msg = DialogueData.GetRandomPhrase(personality, DialogueData.IdlePhrases);
-            _speechBubble.ShowMessage(msg);
-        }
-    }
-    
-    // ... (El resto del script _Process, Feed, etc. está perfecto) ...
-    
-    public override void _Process(double delta)
-    {
+        // Reducción de Hambre
         _hungerTimer += delta;
         if (_hungerTimer >= HungerDecreaseRate)
         {
@@ -92,6 +89,7 @@ public partial class KanuaPet : Node2D
             Hunger -= 1; 
         }
 
+        // Reducción de Felicidad
         _happinessTimer += delta;
         if (_happinessTimer >= HappinessDecreaseRate)
         {
@@ -99,6 +97,7 @@ public partial class KanuaPet : Node2D
             Happiness -= 1; 
         }
 
+        // Reducción de Salud (consecuencia del hambre extrema)
         if (Hunger == 0)
         {
             _healthTimer += delta;
@@ -111,59 +110,61 @@ public partial class KanuaPet : Node2D
         }
     }
 
+    private void OnIdleTalk()
+    {
+        // 30% de probabilidad de hablar cuando el timer se activa
+        if (GD.Randf() < 0.3f)
+        {
+            var personality = _petState.CurrentPersonality;
+            string msg = DialogueData.GetRandomPhrase(personality, DialogueData.IdlePhrases);
+            _speechBubble.ShowMessage(msg);
+        }
+    }
+    #endregion
+
+    #region Interacciones (Alimentar)
     public void Feed()
     {
-        // 1. Preguntamos al Singleton cuál es la primera comida que tenemos
+        // 1. Verificar inventario
         string firstFoodID = _petState.GetFirstFoodItemID();
 
         if (string.IsNullOrEmpty(firstFoodID))
         {
-            GD.Print("¡No hay comida en el inventario! Visita la tienda.");
+            // Feedback visual: No hay comida
             var personality = _petState.CurrentPersonality;
             string msg = DialogueData.GetRandomPhrase(personality, DialogueData.NoFoodPhrases);
             _speechBubble.ShowMessage(msg);
-            // (Aquí podrías mostrar un mensaje en la UI)
             return;
         }
         
-        // 2. Le decimos al Singleton que consuma esa comida
+        // 2. Intentar consumir
         bool success = _petState.ConsumeFood(firstFoodID);
 
         if (success)
         {
-            // 3. Si se pudo consumir, reproducimos la animación
+            // Visuales y Audio
             _petAnimation.Play("eat");
+            GetNode<AudioManager>("/root/AudioManager").PlaySFXPoly("res://audio/eat.wav");
 
+            // Lógica de juego
             _petState.ChangeAffinity(1);
 
-            var audio = GetNode<AudioManager>("/root/AudioManager");
-            audio.PlaySFXPoly("res://audio/eat.wav");
-
-            // Decir frase de comer
+            // Diálogo de reacción
              var personality = _petState.CurrentPersonality;
              string msg = DialogueData.GetRandomPhrase(personality, DialogueData.EatingPhrases);
              _speechBubble.ShowMessage(msg);
-            
-            // Las estadísticas se actualizan solas porque ConsumeFood()
-            // cambia los valores en PetState, lo que dispara
-            // las propiedades 'set' que llaman a EmitSignal().
         }
         else
         {
-            // Esto no debería pasar si GetFirstFoodItemID() funcionó,
-            // pero es bueno tenerlo.
-            GD.PrintErr("Error al intentar consumir la comida.");
+            GD.PrintErr("Error inesperado al intentar consumir la comida.");
         }
     }
-    
+    #endregion
+
+    #region Manejadores de Eventos (UI y Animación)
     public void _on_play_button_pressed()
     {
         GetTree().ChangeSceneToFile("res://minigame_selection.tscn");
-    }
-
-    private void _on_animated_sprite_2d_animation_finished()
-    {
-        _petAnimation.Play("idle");
     }
 
     public void _on_shop_button_pressed()
@@ -175,4 +176,11 @@ public partial class KanuaPet : Node2D
     {
         GetTree().ChangeSceneToFile("res://InventoryScreen.tscn");
     }
+
+    private void _on_animated_sprite_2d_animation_finished()
+    {
+        // Volver a la animación de reposo cuando termina de comer
+        _petAnimation.Play("idle");
+    }
+    #endregion
 }

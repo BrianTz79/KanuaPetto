@@ -4,24 +4,27 @@ using Godot.Collections; // Necesario para Diccionarios de Godot y JSON
 
 public partial class NetworkManager : Node
 {
-    // URL de tu servidor
+    #region Configuración y Eventos
     private const string BASE_URL = "https://kp.stellarbanana.com";
-    
-    // Señales
-    [Signal] public delegate void LoginSuccessEventHandler();
-    [Signal] public delegate void LoginFailedEventHandler(string message);
-
-    private string _sessionToken = "";
-    private PetState _petState;
-
     private const string SESSION_FILE = "user://session.save";
 
+    [Signal] public delegate void LoginSuccessEventHandler();
+    [Signal] public delegate void LoginFailedEventHandler(string message);
+    #endregion
+
+    #region Estado
+    private string _sessionToken = "";
+    private PetState _petState;
+    #endregion
+
+    #region Inicialización
     public override void _Ready()
     {
         _petState = GetNode<PetState>("/root/PetState");
     }
+    #endregion
 
-    // --- FUNCIÓN 1: INICIAR SESIÓN ---
+    #region Autenticación (Login/Registro)
     public void Login(string username, string password)
     {
         var loginData = new Dictionary<string, Variant>
@@ -30,18 +33,17 @@ public partial class NetworkManager : Node
             { "password", password }
         };
 
-        string jsonString = Json.Stringify(loginData);
-
-        SendRequest("/login", jsonString, (result, body) => 
+        SendRequest("/login", Json.Stringify(loginData), (result, body) => 
         {
-            // ÉXITO
             if (result.ContainsKey("token"))
             {
+                // Guardar token en memoria y disco
                 _sessionToken = (string)result["token"];
                 SaveSessionToken(_sessionToken);
+                
                 GD.Print("¡Login exitoso! Token recibido.");
                 
-                // Cargar datos si existen
+                // Cargar datos de la mascota si existen en la respuesta
                 if (result.ContainsKey("petState") && result["petState"].Obj != null)
                 {
                     var cloudState = result["petState"].AsGodotDictionary();
@@ -55,13 +57,9 @@ public partial class NetworkManager : Node
                 EmitSignal(SignalName.LoginFailed, "Respuesta inválida del servidor");
             }
         }, 
-        (errorMsg) => 
-        {
-            EmitSignal(SignalName.LoginFailed, errorMsg);
-        });
+        (errorMsg) => EmitSignal(SignalName.LoginFailed, errorMsg));
     }
 
-    // --- FUNCIÓN 2: REGISTRARSE (¡Esta faltaba!) ---
     public void Register(string username, string password)
     {
         var registerData = new Dictionary<string, Variant>
@@ -72,20 +70,32 @@ public partial class NetworkManager : Node
 
         SendRequest("/register", Json.Stringify(registerData), (result, body) => 
         {
-            // Reutilizamos la señal de fallo para mandar el mensaje de éxito (un truco rápido)
-            // o simplemente imprimimos.
             GD.Print("Registro exitoso");
-            // Para que la UI se entere, emitimos Failed con un mensaje positivo, 
-            // o podrías crear una señal nueva RegisterSuccess.
             EmitSignal(SignalName.LoginFailed, "¡Registro exitoso! Por favor inicia sesión.");
         }, 
-        (errorMsg) => 
-        {
-            EmitSignal(SignalName.LoginFailed, "Error registro: " + errorMsg);
-        });
+        (errorMsg) => EmitSignal(SignalName.LoginFailed, "Error registro: " + errorMsg));
     }
 
-    // --- FUNCIÓN 3: GUARDAR PARTIDA ---
+    public bool CheckAutoLogin()
+    {
+        if (FileAccess.FileExists(SESSION_FILE))
+        {
+            using var file = FileAccess.Open(SESSION_FILE, FileAccess.ModeFlags.Read);
+            string savedToken = file.GetAsText();
+            
+            if (!string.IsNullOrEmpty(savedToken))
+            {
+                GD.Print("Token encontrado, intentando auto-login...");
+                _sessionToken = savedToken;
+                LoadGameFromToken();
+                return true; // Se encontró archivo, esperando respuesta del servidor
+            }
+        }
+        return false; // No hay sesión guardada
+    }
+    #endregion
+
+    #region Sincronización de Datos (Guardar/Cargar)
     public void SaveGame()
     {
         if (string.IsNullOrEmpty(_sessionToken))
@@ -94,8 +104,7 @@ public partial class NetworkManager : Node
             return;
         }
 
-        // Convertimos el inventario de C# a Godot Dictionary manualmente
-        // para evitar errores de conversión de tipos
+        // Convertir inventario a formato compatible con JSON
         var godotInventory = new Godot.Collections.Dictionary();
         foreach(var item in _petState.PlayerInventory)
         {
@@ -108,9 +117,8 @@ public partial class NetworkManager : Node
             { "Happiness", _petState.Happiness },
             { "Health", _petState.Health },
             { "Coins", _petState.Coins },
-            { "Affinity", _petState.Affinity },
+            { "affinity", _petState.Affinity }, // Minúscula para coincidir con backend
             { "Inventory", godotInventory } 
-
         };
 
         var payload = new Dictionary<string, Variant>
@@ -119,56 +127,85 @@ public partial class NetworkManager : Node
             { "petState", stateData }
         };
 
-        SendRequest("/sync", Json.Stringify(payload), (result, body) => 
-        {
-            GD.Print("☁️ Partida guardada en la nube exitosamente.");
-        });
+        SendRequest("/sync", Json.Stringify(payload), 
+            (result, body) => GD.Print("☁️ Partida guardada en la nube exitosamente."),
+            (error) => GD.PrintErr($"Error al guardar: {error}")
+        );
     }
 
-    // --- AYUDANTES ---
+    private void LoadGameFromToken()
+    {
+        // Petición GET para recuperar datos usando solo el token
+        var httpRequest = new HttpRequest();
+        AddChild(httpRequest);
+        
+        httpRequest.RequestCompleted += (long result, long responseCode, string[] headers, byte[] body) =>
+        {
+            if (responseCode == 200)
+            {
+                var json = new Json();
+                json.Parse(System.Text.Encoding.UTF8.GetString(body));
+                var responseDict = json.Data.AsGodotDictionary();
+                
+                if (responseDict.ContainsKey("petState"))
+                {
+                    ApplyCloudData(responseDict["petState"].AsGodotDictionary());
+                    EmitSignal(SignalName.LoginSuccess);
+                }
+            }
+            else
+            {
+                GD.Print("Token expirado o inválido.");
+                if (FileAccess.FileExists(SESSION_FILE))
+                {
+                     DirAccess.RemoveAbsolute(SESSION_FILE);
+                }
+                EmitSignal(SignalName.LoginFailed, "Sesión caducada, inicia de nuevo.");
+            }
+            httpRequest.QueueFree();
+        };
+
+        string[] requestHeaders = { 
+            "Content-Type: application/json",
+            $"Authorization: Bearer {_sessionToken}" 
+        };
+        httpRequest.Request(BASE_URL + "/load", requestHeaders, HttpClient.Method.Get);
+    }
+    #endregion
+
+    #region Utilidades Internas
     private void ApplyCloudData(Godot.Collections.Dictionary data)
     {
-        // CORRECCIÓN: Usamos .AsSingle() (float) directamente del Variant
-        // Casteamos a (int) porque nuestras stats son enteros, pero JSON suele enviar floats (ej: 80.0)
-        
+        // Deserialización segura de datos (Variant -> Tipos C#)
         if (data.ContainsKey("hunger")) _petState.Hunger = (int)data["hunger"].AsSingle();
         if (data.ContainsKey("happiness")) _petState.Happiness = (int)data["happiness"].AsSingle();
         if (data.ContainsKey("health")) _petState.Health = (int)data["health"].AsSingle();
         if (data.ContainsKey("coins")) _petState.Coins = (int)data["coins"].AsSingle();
         if (data.ContainsKey("affinity")) _petState.Affinity = (int)data["affinity"].AsSingle();
 
-        // Cargar inventario
-        if (data.ContainsKey("inventory"))
+        if (data.ContainsKey("inventory") && data["inventory"].Obj != null)
         {
             _petState.PlayerInventory.Clear();
+            var cloudInv = data["inventory"].AsGodotDictionary();
             
-            // Verificamos que no sea nulo antes de convertir
-            if (data["inventory"].Obj != null)
+            foreach (var item in cloudInv)
             {
-                var cloudInv = data["inventory"].AsGodotDictionary();
-                
-                foreach (var item in cloudInv)
-                {
-                    // item.Value también es un Variant, así que usamos .AsInt32() o .AsSingle()
-                    // Usamos AsSingle por seguridad por si viene como 5.0
-                    _petState.PlayerInventory.Add((string)item.Key, (int)item.Value.AsSingle());
-                }
+                _petState.PlayerInventory.Add((string)item.Key, (int)item.Value.AsSingle());
             }
         }
         
-        // Forzamos actualización de UI
         _petState.EmitStatsChanged();
     }
 
     private void SendRequest(string endpoint, string jsonBody, Action<Godot.Collections.Dictionary, byte[]> onSuccess, Action<string> onFailure = null)
     {
-        // CORRECCIÓN AQUÍ: HttpRequest en lugar de HTTPRequest
         var httpRequest = new HttpRequest(); 
         AddChild(httpRequest);
 
         httpRequest.RequestCompleted += (long result, long responseCode, string[] headers, byte[] body) =>
         {
-            if (responseCode == 200 || responseCode == 201)
+            // Códigos 200-299 son exitosos
+            if (responseCode >= 200 && responseCode < 300)
             {
                 var json = new Json();
                 var parseResult = json.Parse(System.Text.Encoding.UTF8.GetString(body));
@@ -196,81 +233,15 @@ public partial class NetworkManager : Node
                 GD.PrintErr($"API Error: {errorMsg}");
                 onFailure?.Invoke(errorMsg);
             }
-            httpRequest.QueueFree(); // Limpieza
+            httpRequest.QueueFree();
         };
 
         string[] requestHeaders = { "Content-Type: application/json" };
         
-        // CORRECCIÓN AQUÍ TAMBIÉN (Si te da error en HttpClient): 
-        // Asegúrate de que HttpClient sea 'Godot.HttpClient' si hay conflicto, 
-        // pero generalmente 'HttpClient.Method.Post' funciona bien si tienes 'using Godot;'
-        httpRequest.Request(BASE_URL + endpoint, requestHeaders, HttpClient.Method.Post, jsonBody);
-    }
-
-
-    public bool CheckAutoLogin()
-    {
-        if (FileAccess.FileExists(SESSION_FILE))
-        {
-            using var file = FileAccess.Open(SESSION_FILE, FileAccess.ModeFlags.Read);
-            string savedToken = file.GetAsText();
-            
-            if (!string.IsNullOrEmpty(savedToken))
-            {
-                GD.Print("Token encontrado, intentando auto-login...");
-                _sessionToken = savedToken;
-                LoadGameFromToken();
-                return true; // ¡Sí encontramos archivo, espera la respuesta HTTP!
-            }
-        }
+        // Determinar método (GET si no hay cuerpo, POST si hay cuerpo)
+        var method = string.IsNullOrEmpty(jsonBody) ? HttpClient.Method.Get : HttpClient.Method.Post;
         
-        // Si llegamos aquí, es que no hay archivo o está vacío.
-        return false; 
-    }
-
-
-    private void LoadGameFromToken()
-    {
-        var httpRequest = new HttpRequest();
-        AddChild(httpRequest);
-        
-        httpRequest.RequestCompleted += (long result, long responseCode, string[] headers, byte[] body) =>
-        {
-            if (responseCode == 200)
-            {
-                var json = new Json();
-                json.Parse(System.Text.Encoding.UTF8.GetString(body));
-                var responseDict = json.Data.AsGodotDictionary();
-                
-                if (responseDict.ContainsKey("petState"))
-                {
-                    ApplyCloudData(responseDict["petState"].AsGodotDictionary());
-                    EmitSignal(SignalName.LoginSuccess);
-                }
-            }
-            else
-            {
-                // EL TOKEN YA NO SIRVE (O expiró)
-                GD.Print("Token expirado o inválido.");
-                
-                // Borramos el archivo para no intentarlo de nuevo la próxima vez
-                if (FileAccess.FileExists(SESSION_FILE))
-                {
-                     DirAccess.RemoveAbsolute(SESSION_FILE);
-                }
-
-                // ¡IMPORTANTE! Avisamos a la UI que falló el auto-login
-                // para que quite el texto "Verificando..."
-                EmitSignal(SignalName.LoginFailed, "Sesión caducada, inicia de nuevo.");
-            }
-            httpRequest.QueueFree();
-        };
-
-        string[] requestHeaders = { 
-            "Content-Type: application/json",
-            $"Authorization: Bearer {_sessionToken}" 
-        };
-        httpRequest.Request(BASE_URL + "/load", requestHeaders, HttpClient.Method.Get);
+        httpRequest.Request(BASE_URL + endpoint, requestHeaders, method, jsonBody);
     }
 
     private void SaveSessionToken(string token)
@@ -278,8 +249,5 @@ public partial class NetworkManager : Node
         using var file = FileAccess.Open(SESSION_FILE, FileAccess.ModeFlags.Write);
         file.StoreString(token);
     }
-
-
-
-
+    #endregion
 }

@@ -1,63 +1,82 @@
 using Godot;
+using System;
 
 public partial class InventoryScreen : CanvasLayer
 {
+    #region Referencias
     private GridContainer _itemGrid;
     private PetState _petState;
     private PackedScene _foodCardScene;
+    #endregion
 
+    #region Inicialización
     public override void _Ready()
     {
+        // Inicializar referencias globales y recursos
         _petState = GetNode<PetState>("/root/PetState");
         _foodCardScene = GD.Load<PackedScene>("res://FoodCard.tscn");
         
-        _itemGrid = GetNode<GridContainer>("ShopWindow/VBoxContainer/ScrollContainer/ItemGrid"); // El nombre sigue siendo ShopWindow porque duplicamos
+        // Inicializar referencias de UI
+        // Nota: La ruta sigue siendo ShopWindow porque reutilizamos la estructura de la escena
+        _itemGrid = GetNode<GridContainer>("ShopWindow/VBoxContainer/ScrollContainer/ItemGrid");
         var backButton = GetNode<Button>("ShopWindow/VBoxContainer/BackButton");
         
         backButton.Pressed += OnBackButtonPressed;
 
+        // Configurar efectos de sonido para botones
+        SetupButtonSounds();
+
+        // Cargar el inventario visualmente
+        PopulateInventory();
+    }
+
+    private void SetupButtonSounds()
+    {
         var audioManager = GetNode<AudioManager>("/root/AudioManager");
-        // Busca todos los botones de ESTA escena y conéctales el sonido
+        
         foreach (var node in FindChildren("*", "Button", true, false))
         {
             if (node is Button btn)
             {
-                // Desconectamos primero por seguridad para no tener doble sonido
-                if (btn.IsConnected(Button.SignalName.Pressed, Callable.From(() => audioManager.PlaySFX("res://audio/click.wav"))))
-                    continue;
-                    
-                btn.Pressed += () => audioManager.PlaySFX("res://audio/click.wav");
+                // Evitar duplicar conexiones
+                if (!btn.IsConnected(Button.SignalName.Pressed, Callable.From(() => audioManager.PlaySFX("res://audio/click.wav"))))
+                {
+                    btn.Pressed += () => audioManager.PlaySFX("res://audio/click.wav");
+                }
             }
         }
-
-        PopulateInventory();
     }
+    #endregion
 
+    #region Lógica de Inventario
+    /// <summary>
+    /// Limpia y regenera la lista de ítems basada en el inventario actual del jugador.
+    /// </summary>
     private void PopulateInventory()
     {
+        // Limpiar elementos existentes
         foreach (Node child in _itemGrid.GetChildren())
         {
             child.QueueFree();
         }
 
-        // Instanciamos una tarjeta SOLO por los items que el jugador TIENE
+        // Instanciar tarjetas solo para ítems que el jugador posee (cantidad > 0)
         foreach (var itemEntry in _petState.PlayerInventory)
         {
             string itemID = itemEntry.Key;
             int quantity = itemEntry.Value;
 
-            // Solo mostrar si tiene 1 o más
             if (quantity > 0)
             {
+                // Obtener datos del ítem desde la base de datos maestra
                 FoodItem foodItem = _petState.AllFoodItems[itemID];
+                
                 var card = _foodCardScene.Instantiate<FoodCard>();
 
-                // false = no es de tienda, y pasamos la cantidad
+                // false indica modo inventario (mostrar botón "Usar" y cantidad)
                 card.Setup(foodItem, false, quantity);
+                
                 card.CardPressed += OnFoodCardPressed;
-
-                // No conectamos la señal "CardPressed",
-                // porque el inventario es de solo lectura.
 
                 _itemGrid.AddChild(card);
             }
@@ -66,22 +85,24 @@ public partial class InventoryScreen : CanvasLayer
     
     private void OnFoodCardPressed(string itemID)
     {
-        // Le decimos al Singleton que consuma ESE item
+        // Intentar consumir el ítem a través del estado global
         bool success = _petState.ConsumeFood(itemID);
 
         if (success)
         {
-            GD.Print($"Consumido {itemID} desde el inventario.");
+            GD.Print($"Consumido ítem: {itemID}");
             
-            // ¡Importante!
-            // Volvemos a dibujar el inventario para
-            // que se actualice la cantidad (o desaparezca el item).
+            // Actualizar la visualización para reflejar la nueva cantidad
+            // o eliminar el ítem si se acabó.
             PopulateInventory();
         }
     }
+    #endregion
 
+    #region Navegación
     private void OnBackButtonPressed()
     {
         GetTree().ChangeSceneToFile("res://main.tscn");
     }
+    #endregion
 }

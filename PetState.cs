@@ -1,75 +1,53 @@
-using Godot; // <-- Para Node, GD, Mathf, [Signal], Texture2D, etc.
-using System; // <-- Para funcionalidad básica de C#
-using System.Collections.Generic; // <-- Para Dictionary<,>
-using System.Linq; // <-- Para .FirstOrDefault()
+using Godot;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public partial class PetState : Node
 {
-// Señal para notificar a la UI
+    #region Señales
     [Signal]
     public delegate void StatsChangedEventHandler(int hunger, int happiness, int health, int coins);
+    #endregion
 
-    // --- ¡CAMBIO IMPORTANTE! ---
-    // Convertimos las estadísticas en propiedades completas
-    // para que emitan la señal cuando cambien.
-    
+    #region Propiedades de Estado (Stats)
     private int _hunger = 80;
     public int Hunger
     {
         get => _hunger;
-        set
-        {
-            _hunger = Mathf.Clamp(value, 0, 100);
-            EmitStatsChanged(); // ¡Emitir señal!
-        }
+        set { _hunger = Mathf.Clamp(value, 0, 100); EmitStatsChanged(); }
     }
 
     private int _happiness = 80;
     public int Happiness
     {
         get => _happiness;
-        set
-        {
-            _happiness = Mathf.Clamp(value, 0, 100);
-            EmitStatsChanged(); // ¡Emitir señal!
-        }
+        set { _happiness = Mathf.Clamp(value, 0, 100); EmitStatsChanged(); }
     }
 
     private int _health = 80;
     public int Health
     {
         get => _health;
-        set
-        {
-            _health = Mathf.Clamp(value, 0, 100);
-            EmitStatsChanged(); // ¡Emitir señal!
-        }
+        set { _health = Mathf.Clamp(value, 0, 100); EmitStatsChanged(); }
     }
 
     private int _coins = 150;
     public int Coins
     {
         get => _coins;
-        set
-        {
-            _coins = value;
-            EmitStatsChanged(); // ¡Emitir señal!
-        }
+        set { _coins = value; EmitStatsChanged(); }
     }
 
+    // Afinidad y Personalidad
     private int _affinity = 0;
     public int Affinity
     {
         get => _affinity;
-        set
-        {
-            _affinity = Mathf.Clamp(value, -100, 100);
-            EmitStatsChanged(); 
-        }
+        set { _affinity = Mathf.Clamp(value, -100, 100); EmitStatsChanged(); }
     }
 
     public enum PersonalityType { Grumpy, Normal, Happy }
-
     public PersonalityType CurrentPersonality
     {
         get
@@ -79,173 +57,45 @@ public partial class PetState : Node
             return PersonalityType.Normal;
         }
     }
-    
-    // Función para modificar afinidad (usar esta en lugar de set directo)
-    public void ChangeAffinity(int amount)
-    {
-        Affinity += amount;
-        GD.Print($"Afinidad cambiada: {amount}. Total: {Affinity} ({CurrentPersonality})");
+    #endregion
 
-        GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
-
-        if (amount > 0)
-        {
-            GetNode<AudioManager>("/root/AudioManager").PlaySFXPoly("res://audio/levelup.wav");
-        }
-    }
-
-
-
-    // Tasas de disminución (como antes)
+    #region Configuración Global
+    // Tasas de disminución de stats
     public float HungerDecreaseRate { get; set; } = 10.0f;
     public float HappinessDecreaseRate { get; set; } = 10.0f;
     public float HealthDecreaseRate { get; set; } = 8.0f;
+    #endregion
 
-    // --- ¡NUEVA SECCIÓN DE INVENTARIO Y TIENDA! ---
-
-    // 1. La "Base de Datos" de todos los items que existen en el juego.
-    // La clave (string) es el ItemID ("apple", "cake").
+    #region Inventario y Base de Datos
     public Dictionary<string, FoodItem> AllFoodItems { get; private set; } = new();
-
-    // 2. El inventario REAL del jugador.
-    // La clave (string) es el ItemID, el valor (int) es la CANTIDAD que tiene.
-    // ¡ESTO es lo que guardarás en tu base de datos online!
     public Dictionary<string, int> PlayerInventory { get; private set; } = new();
+    #endregion
 
+    #region Inicialización
     public override void _Ready()
     {
-        // Cargamos la "base de datos" de items.
-        // Más adelante, puedes cargar esto desde archivos .tres en lugar de codificarlo.
         LoadAllFoodItems();
     }
 
     private void LoadAllFoodItems()
     {
-        // --- Ítems Originales ---
-        var apple = new FoodItem
-        {
-            ItemID = "apple",
-            ItemName = "Manzana",
-            Description = "Una manzana roja y crujiente.",
-            Price = 10,
-            Texture = GD.Load<Texture2D>("res://sprites/food/manzana.png"),
-            HungerRestore = 15,
-            HappinessRestore = 5,
-            HealthRestore = 1
-        };
+        // --- Carga de Base de Datos de Ítems ---
+        
+        // Ítems Originales
+        var apple = new FoodItem { ItemID = "apple", ItemName = "Manzana", Description = "Roja y crujiente.", Price = 10, Texture = GD.Load<Texture2D>("res://sprites/food/manzana.png"), HungerRestore = 15, HappinessRestore = 5, HealthRestore = 1 };
+        var cake = new FoodItem { ItemID = "cake", ItemName = "Pastel", Description = "Delicioso.", Price = 25, Texture = GD.Load<Texture2D>("res://sprites/food/pastel.png"), HungerRestore = 30, HappinessRestore = 20, HealthRestore = -5 };
+        
+        // Ítems Nuevos
+        var cookie = new FoodItem { ItemID = "cookie", ItemName = "Galletas", Description = "Con chispas.", Price = 8, Texture = GD.Load<Texture2D>("res://sprites/food/cookie.png"), HungerRestore = 10, HappinessRestore = 8, HealthRestore = -1 };
+        var chocoMilk = new FoodItem { ItemID = "chocomilk", ItemName = "Leche Cho.", Description = "Refrescante.", Price = 12, Texture = GD.Load<Texture2D>("res://sprites/food/chocomilk.png"), HungerRestore = 10, HappinessRestore = 15, HealthRestore = 5 };
+        var croissant = new FoodItem { ItemID = "croissant", ItemName = "Croissant", Description = "Suave y francés.", Price = 15, Texture = GD.Load<Texture2D>("res://sprites/food/croissant.png"), HungerRestore = 20, HappinessRestore = 10, HealthRestore = 2 };
+        var birria = new FoodItem { ItemID = "birria", ItemName = "Birria", Description = "Levanta muertos.", Price = 45, Texture = GD.Load<Texture2D>("res://sprites/food/birria.png"), HungerRestore = 50, HappinessRestore = 25, HealthRestore = 10 };
+        var tamal = new FoodItem { ItemID = "tamal", ItemName = "Tamal", Description = "Calientito.", Price = 18, Texture = GD.Load<Texture2D>("res://sprites/food/tamal.png"), HungerRestore = 35, HappinessRestore = 10, HealthRestore = 5 };
+        var tacos = new FoodItem { ItemID = "tacos", ItemName = "Tacos", Description = "Con todo.", Price = 30, Texture = GD.Load<Texture2D>("res://sprites/food/tacos.png"), HungerRestore = 40, HappinessRestore = 20, HealthRestore = 5 };
+        var burrito = new FoodItem { ItemID = "burro", ItemName = "Burrito", Description = "Gigante.", Price = 28, Texture = GD.Load<Texture2D>("res://sprites/food/burro.png"), HungerRestore = 45, HappinessRestore = 15, HealthRestore = 3 };
+        var maruchan = new FoodItem { ItemID = "maruchan", ItemName = "Sopa Inst.", Description = "Rápida.", Price = 5, Texture = GD.Load<Texture2D>("res://sprites/food/maruchan.png"), HungerRestore = 25, HappinessRestore = 2, HealthRestore = -5 };
 
-        var cake = new FoodItem
-        {
-            ItemID = "cake",
-            ItemName = "Pastel",
-            Description = "Un delicioso pedazo de pastel.",
-            Price = 25,
-            Texture = GD.Load<Texture2D>("res://sprites/food/pastel.png"),
-            HungerRestore = 30,
-            HappinessRestore = 20,
-            HealthRestore = -5
-        };
-
-        // --- Nuevos Ítems ---
-
-        var cookie = new FoodItem
-        {
-            ItemID = "cookie",
-            ItemName = "Galletas",
-            Description = "Crujientes y con chispas de chocolate.",
-            Price = 8,
-            // ¡Recuerda añadir esta imagen a tu carpeta!
-            Texture = GD.Load<Texture2D>("res://sprites/food/cookie.png"), 
-            HungerRestore = 10,
-            HappinessRestore = 8,
-            HealthRestore = -1
-        };
-
-        var chocoMilk = new FoodItem
-        {
-            ItemID = "chocomilk",
-            ItemName = "Leche con Chocolate",
-            Description = "Bebida fría y refrescante.",
-            Price = 12,
-            Texture = GD.Load<Texture2D>("res://sprites/food/chocomilk.png"),
-            HungerRestore = 10,
-            HappinessRestore = 15,
-            HealthRestore = 5
-        };
-
-        var croissant = new FoodItem
-        {
-            ItemID = "croissant",
-            ItemName = "Croissant",
-            Description = "Panecillo francés suave y mantequilloso.",
-            Price = 15,
-            Texture = GD.Load<Texture2D>("res://sprites/food/croissant.png"),
-            HungerRestore = 20,
-            HappinessRestore = 10,
-            HealthRestore = 2
-        };
-
-        var birria = new FoodItem
-        {
-            ItemID = "birria",
-            ItemName = "Birria",
-            Description = "Un caldito levanta muertos. ¡Delicioso!",
-            Price = 45,
-            Texture = GD.Load<Texture2D>("res://sprites/food/birria.png"),
-            HungerRestore = 50,
-            HappinessRestore = 25,
-            HealthRestore = 10
-        };
-
-        var tamal = new FoodItem
-        {
-            ItemID = "tamal",
-            ItemName = "Tamal",
-            Description = "Calientito y envuelto en hoja de maíz.",
-            Price = 18,
-            Texture = GD.Load<Texture2D>("res://sprites/food/tamal.png"),
-            HungerRestore = 35,
-            HappinessRestore = 10,
-            HealthRestore = 5
-        };
-
-        var tacos = new FoodItem
-        {
-            ItemID = "tacos",
-            ItemName = "Orden de Tacos",
-            Description = "Con todo y mucha salsa.",
-            Price = 30,
-            Texture = GD.Load<Texture2D>("res://sprites/food/tacos.png"),
-            HungerRestore = 40,
-            HappinessRestore = 20,
-            HealthRestore = 5
-        };
-
-        var burrito = new FoodItem
-        {
-            ItemID = "burro",
-            ItemName = "Burrito",
-            Description = "Tortilla de harina gigante rellena de felicidad.",
-            Price = 28,
-            Texture = GD.Load<Texture2D>("res://sprites/food/burro.png"),
-            HungerRestore = 45,
-            HappinessRestore = 15,
-            HealthRestore = 3
-        };
-
-        var maruchan = new FoodItem
-        {
-            ItemID = "maruchan",
-            ItemName = "Sopa Instantánea",
-            Description = "Barata y rápida. No muy nutritiva.",
-            Price = 5,
-            Texture = GD.Load<Texture2D>("res://sprites/food/maruchan.png"),
-            HungerRestore = 25,
-            HappinessRestore = 2,
-            HealthRestore = -5 // ¡Cuidado con la salud!
-        };
-
-        // --- Añadir al Diccionario ---
+        // Añadir al diccionario maestro
         AllFoodItems.Add(apple.ItemID, apple);
         AllFoodItems.Add(cake.ItemID, cake);
         AllFoodItems.Add(cookie.ItemID, cookie);
@@ -257,87 +107,80 @@ public partial class PetState : Node
         AllFoodItems.Add(burrito.ItemID, burrito);
         AllFoodItems.Add(maruchan.ItemID, maruchan);
     }
-    // --- Métodos para interactuar con la Tienda y el Inventario ---
+    #endregion
 
+    #region Lógica de Juego (Acciones)
     public bool BuyFood(string itemID)
     {
         if (!AllFoodItems.TryGetValue(itemID, out FoodItem itemToBuy))
         {
-            GD.PrintErr($"Error: Item ID '{itemID}' no encontrado.");
+            GD.PrintErr($"Error: Item '{itemID}' no encontrado.");
             return false;
         }
 
         if (Coins >= itemToBuy.Price)
         {
-            // Restar monedas
             Coins -= itemToBuy.Price;
 
-            // Añadir al inventario
-            if (PlayerInventory.ContainsKey(itemID))
-            {
-                PlayerInventory[itemID]++; // Aumenta la cantidad
-            }
-            else
-            {
-                PlayerInventory.Add(itemID, 1); // Añade el item por primera vez
-            }
+            if (PlayerInventory.ContainsKey(itemID)) PlayerInventory[itemID]++;
+            else PlayerInventory.Add(itemID, 1);
 
-            GD.Print($"¡Comprado: {itemToBuy.ItemName}! Tienes {PlayerInventory[itemID]}.");
+            GD.Print($"Compra exitosa: {itemToBuy.ItemName}");
             GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
-            // Notificar a la UI que las monedas cambiaron
             return true;
         }
-        else
-        {
-            GD.Print("¡No tienes suficientes monedas!");
-            return false;
-        }
-    }
-
-    public string GetFirstFoodItemID()
-    {
-        // Busca el primer item en el inventario que tenga cantidad > 0
-        return PlayerInventory.FirstOrDefault(item => item.Value > 0).Key;
-        // Devolverá null si el inventario está vacío
+        
+        GD.Print("Monedas insuficientes.");
+        return false;
     }
 
     public bool ConsumeFood(string itemID)
     {
         if (!PlayerInventory.TryGetValue(itemID, out int quantity) || quantity <= 0)
         {
-            GD.PrintErr($"Error: No tienes '{itemID}' en tu inventario.");
-            return false;
+            return false; // No hay inventario
         }
 
         if (!AllFoodItems.TryGetValue(itemID, out FoodItem itemToEat))
         {
-            GD.PrintErr($"Error: Item ID '{itemID}' no se pudo comer.");
-            return false;
+            return false; // Item no existe en BD
         }
 
-        // Restar del inventario
         PlayerInventory[itemID]--;
 
-        // Aplicar estadísticas
         Hunger += itemToEat.HungerRestore;
         Happiness += itemToEat.HappinessRestore;
         Health += itemToEat.HealthRestore;
 
-        GD.Print($"¡Consumido: {itemToEat.ItemName}! Quedan {PlayerInventory[itemID]}.");
+        GD.Print($"Consumido: {itemToEat.ItemName}");
         GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
-
-        // ¡No es necesario emitir la señal aquí!
-        // Los 'setters' de Hunger, Happiness, etc., en KanuaPet.cs
-        // ya llaman a EmitStatsChanged() automáticamente.
 
         return true;
     }
 
-    // Un método simple para emitir la señal con los valores actuales
+    public string GetFirstFoodItemID()
+    {
+        return PlayerInventory.FirstOrDefault(item => item.Value > 0).Key;
+    }
+
+    public void ChangeAffinity(int amount)
+    {
+        Affinity += amount;
+        GD.Print($"Afinidad actual: {Affinity} ({CurrentPersonality})");
+
+        GetNode<NetworkManager>("/root/NetworkManager").SaveGame();
+
+        if (amount > 0)
+        {
+            GetNode<AudioManager>("/root/AudioManager").PlaySFXPoly("res://audio/levelup.wav");
+        }
+    }
+    #endregion
+
+    #region Utilidades
     public void EmitStatsChanged()
     {
-        // Usamos CallDeferred para evitar errores si la señal se emite
-        // durante un proceso físico o de inicialización.
         CallDeferred(MethodName.EmitSignal, SignalName.StatsChanged, Hunger, Happiness, Health, Coins);
     }
+    #endregion
 }

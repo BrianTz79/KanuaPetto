@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://codqn6uxdt5r1"]
+[gd_scene load_steps=19 format=3 uid="uid://codqn6uxdt5r1"]
 
 [ext_resource type="Script" uid="uid://dcyo4pwwd883" path="res://MinigameSelection.cs" id="1_0rvgk"]
 [ext_resource type="Texture2D" uid="uid://dmyohxmjrer46" path="res://sprites/Fondos/fondoseleccionMinijuegos.jpg" id="2_5sf32"]
 [ext_resource type="Texture2D" uid="uid://11hi0i3weun6" path="res://sprites/Fondos/fondoestadisticas.jpg" id="3_307sr"]
+[ext_resource type="Texture2D" uid="uid://6kpqvgu70jlt" path="res://sprites/amelia/spritesheet-58.png" id="4_8h44q"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_7x2d6"]
 content_margin_left = 5.0
@@ -26,6 +27,84 @@ content_margin_right = 5.0
 content_margin_bottom = 5.0
 texture = ExtResource("3_307sr")
 modulate_color = Color(0.6706895, 0.6706895, 0.6706895, 1)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_s8d6g"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(0, 0, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_roj0o"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(880, 0, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hudy1"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(1760, 0, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5bvnc"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(2640, 0, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8a4dg"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(3520, 0, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v2qvj"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(0, 870, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mp1qc"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(880, 870, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3mi1p"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(1760, 870, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hke4t"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(2640, 870, 880, 870)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pgecj"]
+atlas = ExtResource("4_8h44q")
+region = Rect2(3520, 870, 880, 870)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_058c6"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_s8d6g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_roj0o")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hudy1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5bvnc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8a4dg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v2qvj")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mp1qc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3mi1p")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hke4t")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pgecj")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 20.0
+}]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -76,6 +155,14 @@ theme_override_styles/normal = SubResource("StyleBoxTexture_7x2d6")
 theme_override_styles/pressed = SubResource("StyleBoxTexture_uremd")
 theme_override_styles/hover = SubResource("StyleBoxTexture_wfwjt")
 text = "Volver"
+
+[node name="PetCompanion" type="AnimatedSprite2D" parent="."]
+position = Vector2(880, 504)
+scale = Vector2(0.4, 0.4)
+sprite_frames = SubResource("SpriteFrames_058c6")
+animation = &"idle"
+autoplay = "idle"
+frame_progress = 0.49359682
 
 [connection signal="pressed" from="VBoxContainer/Button2" to="." method="_on_tic_tac_toe_button_pressed"]
 [connection signal="pressed" from="VBoxContainer/Button" to="." method="_on_back_button_pressed"]

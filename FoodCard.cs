@@ -3,37 +3,50 @@ using System;
 
 public partial class FoodCard : PanelContainer
 {
+    #region Señales
     [Signal]
     public delegate void CardPressedEventHandler(string itemID);
+    #endregion
 
+    #region Referencias de UI
     private TextureRect _icon;
     private Label _nameLabel;
     private Label _infoLabel;
     private Button _actionButton;
+    #endregion
 
+    #region Datos
     private string _itemID;
     private FoodItem _foodItem;
+    #endregion
 
-    // Este es el método principal para configurar la tarjeta
+    #region Configuración
+    /// <summary>
+    /// Configura la tarjeta con los datos del ítem y el modo de visualización (Tienda o Inventario).
+    /// </summary>
     public void Setup(FoodItem foodItem, bool isShop, int quantity = 0)
     {
-        // Obtenemos las referencias de los nodos AHORA,
+        // Inicializar referencias a nodos hijos
         _icon = GetNode<TextureRect>("VBoxContainer/Icon");
         _nameLabel = GetNode<Label>("VBoxContainer/NameLabel");
         _infoLabel = GetNode<Label>("VBoxContainer/InfoLabel");
         _actionButton = GetNode<Button>("VBoxContainer/ActionButton");
 
+        // Asignar datos internos
         _itemID = foodItem.ItemID;
         _foodItem = foodItem;
 
+        // Configurar elementos visuales básicos
         _icon.Texture = foodItem.Texture;
         _nameLabel.Text = foodItem.ItemName;
-        
-        // --- ¡ARREGLO AQUÍ! ---
-        // Simplemente eliminamos la línea de desconexión.
-        // Solo conectamos la señal una vez.
-        _actionButton.Pressed += OnButtonPressed;
 
+        // Conectar señal del botón (evitando duplicados)
+        if (!_actionButton.IsConnected(Button.SignalName.Pressed, Callable.From(OnButtonPressed)))
+        {
+            _actionButton.Pressed += OnButtonPressed;
+        }
+
+        // Configurar textos según el contexto
         if (isShop)
         {
             _infoLabel.Text = $"Precio: {foodItem.Price} monedas";
@@ -47,9 +60,12 @@ public partial class FoodCard : PanelContainer
             _actionButton.Text = "Usar";
         }
     }
+    #endregion
 
+    #region Manejadores de Eventos
     private void OnButtonPressed()
     {
         EmitSignal(SignalName.CardPressed, _itemID);
     }
+    #endregion
 }

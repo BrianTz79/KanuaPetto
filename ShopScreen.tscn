@@ -1,8 +1,9 @@
-[gd_scene load_steps=5 format=3 uid="uid://cyliwmyehgwuq"]
+[gd_scene load_steps=10 format=3 uid="uid://cyliwmyehgwuq"]
 
 [ext_resource type="Script" uid="uid://cl1ydj6e7aa6m" path="res://ShopScreen.cs" id="1_56tbl"]
 [ext_resource type="Texture2D" uid="uid://bf186ufs6lfpj" path="res://sprites/Fondos/fondoTienda.jpg" id="2_sx607"]
 [ext_resource type="Texture2D" uid="uid://blygfxm7evf8d" path="res://sprites/Fondos/fondoTicTacMinijuego.jpg" id="3_0gb0j"]
+[ext_resource type="Texture2D" uid="uid://u3immdxc0iy0" path="res://sprites/amelia/spritesheet-8.png" id="4_mqxf6"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mqxf6"]
 content_margin_left = 25.0
@@ -10,6 +11,35 @@ content_margin_top = 25.0
 content_margin_right = 25.0
 content_margin_bottom = 25.0
 texture = ExtResource("3_0gb0j")
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_7q8gv"]
+atlas = ExtResource("4_mqxf6")
+region = Rect2(0, 0, 540, 670)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8kb3d"]
+atlas = ExtResource("4_mqxf6")
+region = Rect2(540, 0, 540, 670)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ulw5w"]
+atlas = ExtResource("4_mqxf6")
+region = Rect2(1080, 0, 540, 670)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_yd1iu"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_7q8gv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8kb3d")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ulw5w")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 10.0
+}]
 
 [node name="CanvasLayer" type="CanvasLayer"]
 script = ExtResource("1_56tbl")
@@ -61,3 +91,11 @@ columns = 2
 [node name="BackButton" type="Button" parent="ShopWindow/VBoxContainer"]
 layout_mode = 2
 text = "Volver"
+
+[node name="PetCompanion" type="AnimatedSprite2D" parent="."]
+position = Vector2(1028, 487)
+scale = Vector2(0.5, 0.5)
+sprite_frames = SubResource("SpriteFrames_yd1iu")
+animation = &"idle"
+autoplay = "idle"
+frame_progress = 0.30810624

@@ -3,32 +3,48 @@ using System;
 
 public partial class PetUI : CanvasLayer
 {
-    [Export] 
-    private ProgressBar _hungerBar;
+    #region Referencias de UI
+    [Export] private ProgressBar _hungerBar;
+    [Export] private ProgressBar _happinessBar;
+    [Export] private ProgressBar _healthBar;
+    [Export] private Label _coinsLabel;
+    #endregion
 
-    [Export] 
-    private ProgressBar _happinessBar;
+    #region Estado y Referencias
+    private PetState _petState;
+    #endregion
 
-    [Export] 
-    private ProgressBar _healthBar;
-    
-    [Export] 
-    private Label _coinsLabel;
-
-    private PetState _petState; // <-- ¡Guarda la referencia!
-
+    #region Ciclo de Vida
     public override void _Ready()
     {
-        // 1. Obtenemos el Singleton y LO GUARDAMOS
+        // Obtener referencia al estado global
         _petState = GetNode<PetState>("/root/PetState");
 
-        // 2. Nos conectamos a SU señal
+        // Suscribirse a cambios en las estadísticas
         _petState.StatsChanged += OnPetStatsChanged;
 
-        // 3. Forzamos una actualización inicial
+        // Inicializar la UI con los valores actuales
         OnPetStatsChanged(_petState.Hunger, _petState.Happiness, _petState.Health, _petState.Coins);
 
+        // Configurar efectos de sonido para los botones de la interfaz
+        SetupButtonSounds();
+    }
+
+    public override void _ExitTree()
+    {
+        // Desuscribirse para evitar memory leaks o llamadas a objetos destruidos
+        if (_petState != null)
+        {
+            _petState.StatsChanged -= OnPetStatsChanged;
+        }
+    }
+    #endregion
+
+    #region Configuración
+    private void SetupButtonSounds()
+    {
         var audioManager = GetNode<AudioManager>("/root/AudioManager");
+        
         foreach (var node in FindChildren("*", "Button", true, false))
         {
             if (node is Button btn)
@@ -36,50 +52,26 @@ public partial class PetUI : CanvasLayer
                 btn.Pressed += () => audioManager.PlaySFX("res://audio/click.wav");
             }
         }
-        
     }
+    #endregion
 
-    // --- ¡¡AQUÍ ESTÁ LA SOLUCIÓN!! ---
-    public override void _ExitTree()
-    {
-        // Esta función se llama justo antes de que el nodo sea destruido
-        // (por ejemplo, al cambiar de escena).
-        
-        // Nos aseguramos de que _petState no sea nulo y nos desconectamos.
-        if (_petState != null)
-        {
-            _petState.StatsChanged -= OnPetStatsChanged;
-        }
-    }
-    // --- Fin de la Solución ---
-
-
+    #region Manejadores de Eventos
+    /// <summary>
+    /// Actualiza los elementos visuales cuando cambian las estadísticas de la mascota.
+    /// </summary>
     public void OnPetStatsChanged(int hunger, int happiness, int health, int coins)
     {
-        // Esta comprobación es buena, pero la verdadera solución está en _ExitTree
-        if (!IsInstanceValid(_hungerBar))
-        {
-             // Si la barra ya no existe (porque estamos saliendo de la escena),
-             // no intentes actualizarla.
-             return;
-        }
+        // Verificar validez de la instancia antes de intentar actualizar
+        if (!IsInstanceValid(_hungerBar)) return;
 
-        // La línea 38, que daba error, está aquí.
-        if (_hungerBar != null)
-        {
-            _hungerBar.Value = hunger;
-        }
-        if (_happinessBar != null)
-        {
-            _happinessBar.Value = happiness;
-        }
-        if (_healthBar != null)
-        {
-            _healthBar.Value = health;
-        }
+        if (_hungerBar != null) _hungerBar.Value = hunger;
+        if (_happinessBar != null) _happinessBar.Value = happiness;
+        if (_healthBar != null) _healthBar.Value = health;
+        
         if (_coinsLabel != null)
         {
-            _coinsLabel.Text = "Coins: " + coins.ToString();
+            _coinsLabel.Text = $"Coins: {coins}";
         }
     }
+    #endregion
 }
